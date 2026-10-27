@@ -4,13 +4,35 @@ const campoBusca = document.getElementById("campo-busca");
 const listaResultados = document.getElementById("resultados");
 const msgBusca = document.getElementById("msg-busca");
 const moldeFaixa = document.getElementById("tpl-faixa");
+
+// Seleção de várias músicas
+const barraSelecao = document.getElementById("barra-selecao");
+const selecionarTodas = document.getElementById("selecionar-todas");
+const contagemSelecao = document.getElementById("contagem-selecao");
+const dataSelecao = document.getElementById("data-selecao");
+const avisoSelecao = document.getElementById("aviso-selecao");
+const botaoRegistrarSelecionadas = document.getElementById("btn-registrar-selecionadas");
+const botaoLimparSelecao = document.getElementById("btn-limpar-selecao");
+const detalhesSelecionadas = document.getElementById("detalhes-selecionadas");
+const resumoSelecionadas = document.getElementById("resumo-selecionadas");
+const listaSelecionadas = document.getElementById("lista-selecionadas");
+
+// Músicas selecionadas em qualquer busca (id -> música). Continua valendo quando você pesquisa outro artista.
+const selecaoAcumulada = new Map();
+
+// Seleção de várias escutas para remover
+const barraRemocao = document.getElementById("barra-remocao");
+const selecionarTodasEscutas = document.getElementById("selecionar-todas-escutas");
+const contagemRemocao = document.getElementById("contagem-remocao");
+const botaoRemoverSelecionadas = document.getElementById("btn-remover-selecionadas");
+const idsParaRemover = new Set(); // continua marcado mesmo se a lista for redesenhada
 const listaEscutas = document.getElementById("escutas");
 
 // Guarda os resultados da última busca (usados ao registrar a escuta)
 let resultadosAtuais = new Map();
 
-// Id da escuta recém-registrada (ganha um destaque na lista)
-let ultimoRegistradoId = null;
+// Ids das escutas recém-registradas (ganham um destaque na lista)
+const idsNovos = new Set();
 
 // Respeita quem pediu menos movimento no aparelho (sem matchMedia também conta como "sem animação")
 const semAnimacao = () => !window.matchMedia || window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -113,6 +135,7 @@ function criarItem(faixa) {
   item.dataset.id = faixa.id;
   item.querySelector(".faixa__capa").src = faixa.capa;
   item.querySelector(".faixa__titulo").textContent = faixa.titulo;
+  item.querySelector(".faixa__selecionar input").setAttribute("aria-label", `Selecionar ${faixa.titulo}`);
   item.querySelector(".faixa__artista").textContent = faixa.artista;
   item.querySelector(".faixa__duracao").textContent = formatarDuracao(faixa.duracaoSeg);
 
@@ -126,6 +149,10 @@ function criarItem(faixa) {
 function mostrarResultados(faixas) {
   resultadosAtuais = new Map(faixas.map((faixa) => [String(faixa.id), faixa]));
   listaResultados.replaceChildren(...faixas.map(criarItem));
+
+  if (!dataSelecao.value) dataSelecao.value = hoje(); // mantém a data que você já escolheu
+  dataSelecao.max = hoje();
+  atualizarSelecao();
 }
 
 // ===== Evento da busca =====
@@ -138,6 +165,7 @@ formBusca.addEventListener("submit", async (evento) => {
   const botao = formBusca.querySelector("button");
   botao.disabled = true;
   listaResultados.replaceChildren(...Array.from({ length: 4 }, () => criarEsqueleto()));
+  atualizarSelecao();
   msgBusca.textContent = "Buscando...";
 
   try {
@@ -145,6 +173,7 @@ formBusca.addEventListener("submit", async (evento) => {
 
     if (faixas.length === 0) {
       listaResultados.replaceChildren();
+      atualizarSelecao();
       msgBusca.textContent = "Nenhum resultado. Tente outro nome.";
     } else {
       mostrarResultados(faixas);
@@ -152,6 +181,7 @@ formBusca.addEventListener("submit", async (evento) => {
   } catch (erro) {
     console.error(erro);
     listaResultados.replaceChildren();
+    atualizarSelecao();
     msgBusca.textContent = "Não foi possível buscar agora. Verifique sua internet e tente de novo.";
   } finally {
     botao.disabled = false;
@@ -185,26 +215,41 @@ function hoje() {
   return new Date().toLocaleDateString("sv-SE");
 }
 
-function registrarEscuta(faixa, minutosOuvidos, data) {
+// Registra uma ou várias escutas de uma vez (uma única gravação no armazenamento).
+// itens: [{ faixa, minutos }]
+function registrarEscutas(itens, data) {
   const escutas = carregarEscutas();
+  const usados = new Set(escutas.map((escuta) => escuta.id));
+  let id = Date.now();
 
-  ultimoRegistradoId = Date.now();
-  escutas.push({
-    id: ultimoRegistradoId,
-    musicaId: faixa.id,
-    titulo: faixa.titulo,
-    artista: faixa.artista,
-    album: faixa.album,
-    ano: faixa.ano,
-    duracaoSeg: faixa.duracaoSeg,
-    capa: faixa.capa,
-    genero: faixa.genero || "Desconhecido",
-    completa: minutosOuvidos >= faixa.duracaoSeg / 60,
-    minutosOuvidos: minutosOuvidos,
-    data: data,
-  });
+  for (const { faixa, minutos } of itens) {
+    while (usados.has(id)) id += 1; // vários registros no mesmo milissegundo não podem repetir o id
+    usados.add(id);
+    idsNovos.add(id);
 
-  return salvarEscutas(escutas);
+    escutas.push({
+      id: id,
+      musicaId: faixa.id,
+      titulo: faixa.titulo,
+      artista: faixa.artista,
+      album: faixa.album,
+      ano: faixa.ano,
+      duracaoSeg: faixa.duracaoSeg,
+      capa: faixa.capa,
+      genero: faixa.genero || "Desconhecido",
+      completa: minutos >= faixa.duracaoSeg / 60,
+      minutosOuvidos: minutos,
+      data: data,
+    });
+  }
+
+  const salvou = salvarEscutas(escutas);
+  if (!salvou) idsNovos.clear();
+  return salvou;
+}
+
+function registrarEscuta(faixa, minutosOuvidos, data) {
+  return registrarEscutas([{ faixa, minutos: minutosOuvidos }], data);
 }
 
 // ===== Lista "Suas escutas" =====
@@ -220,7 +265,7 @@ function formatarData(data) {
 function criarItemEscuta(escuta) {
   const item = document.createElement("li");
   item.className = "faixa";
-  if (escuta.id === ultimoRegistradoId) item.classList.add("faixa--nova");
+  if (idsNovos.has(escuta.id)) item.classList.add("faixa--nova");
 
   const capa = document.createElement("img");
   capa.className = "faixa__capa";
@@ -250,16 +295,37 @@ function criarItemEscuta(escuta) {
   remover.dataset.remover = escuta.id;
   remover.textContent = "Remover";
 
-  item.append(capa, info, tempo, remover);
+  const caixa = document.createElement("input");
+  caixa.type = "checkbox";
+  caixa.dataset.id = escuta.id;
+  caixa.checked = idsParaRemover.has(escuta.id);
+  caixa.setAttribute("aria-label", `Selecionar ${escuta.titulo} para remover`);
+
+  const marca = criarElemento("span", "marca");
+  marca.setAttribute("aria-hidden", "true");
+
+  const selecionar = criarElemento("label", "faixa__selecionar");
+  selecionar.append(caixa, marca);
+
+  item.classList.add("faixa--selecionavel");
+  item.append(selecionar, capa, info, tempo, remover);
   return item;
 }
 
 function mostrarEscutas() {
   const escutas = carregarEscutas();
+
+  // esquece marcações de escutas que já não existem
+  const existentes = new Set(escutas.map((escuta) => escuta.id));
+  for (const id of idsParaRemover) {
+    if (!existentes.has(id)) idsParaRemover.delete(id);
+  }
+
   atualizarFiltroAno(escutas);
   const maisRecentesPrimeiro = [...escutas].reverse();
   listaEscutas.replaceChildren(...maisRecentesPrimeiro.map(criarItemEscuta));
-  ultimoRegistradoId = null; // o destaque vale só para esta renderização
+  atualizarBarraRemocao();
+  idsNovos.clear(); // o destaque vale só para esta renderização
   mostrarWrapped(escutas);
 }
 
@@ -323,6 +389,122 @@ listaResultados.addEventListener("click", (evento) => {
   item.querySelector("details").open = false; // fecha o formulário
   mostrarEscutas();
   mostrarToast("Escuta salva ✓");
+});
+
+// ===== Selecionar várias músicas (a seleção atravessa as buscas) =====
+function caixasDosResultados() {
+  return [...listaResultados.querySelectorAll(".faixa__selecionar input")];
+}
+
+function idDaCaixa(caixa) {
+  return caixa.closest(".faixa").dataset.id;
+}
+
+// A seleção guardada em selecaoAcumulada é a "verdade"; a tela só mostra o que está nela.
+function atualizarSelecao() {
+  const caixas = caixasDosResultados();
+
+  caixas.forEach((caixa) => {
+    const selecionada = selecaoAcumulada.has(idDaCaixa(caixa));
+    caixa.checked = selecionada;
+    caixa.closest(".faixa").classList.toggle("faixa--selecionada", selecionada);
+  });
+
+  const marcadasAqui = caixas.filter((caixa) => caixa.checked).length;
+  const total = selecaoAcumulada.size;
+
+  barraSelecao.hidden = caixas.length === 0 && total === 0;
+  contagemSelecao.textContent = total === 1 ? "1 selecionada" : `${total} selecionadas`;
+  botaoRegistrarSelecionadas.disabled = total === 0;
+  botaoLimparSelecao.disabled = total === 0;
+
+  // "selecionar todos" vale só para os resultados que estão na tela
+  selecionarTodas.disabled = caixas.length === 0;
+  selecionarTodas.checked = caixas.length > 0 && marcadasAqui === caixas.length;
+  selecionarTodas.indeterminate = marcadasAqui > 0 && marcadasAqui < caixas.length;
+
+  desenharListaSelecionadas();
+  avisoSelecao.textContent = "";
+}
+
+// Lista de tudo que está selecionado, com um × para tirar cada música
+function desenharListaSelecionadas() {
+  const itens = [...selecaoAcumulada.entries()].map(([id, faixa]) => {
+    const item = criarElemento("li", "selecao__item");
+    const nome = criarElemento("span", "selecao__nome", `${faixa.titulo} — ${faixa.artista}`);
+
+    const tirar = criarElemento("button", "selecao__tirar", "×");
+    tirar.type = "button";
+    tirar.dataset.id = id;
+    tirar.setAttribute("aria-label", `Tirar ${faixa.titulo} da seleção`);
+
+    item.append(nome, tirar);
+    return item;
+  });
+
+  listaSelecionadas.replaceChildren(...itens);
+  detalhesSelecionadas.hidden = itens.length === 0;
+  resumoSelecionadas.textContent = `Ver selecionadas (${itens.length})`;
+}
+
+listaResultados.addEventListener("change", (evento) => {
+  if (!evento.target.matches(".faixa__selecionar input")) return;
+
+  const id = idDaCaixa(evento.target);
+  const faixa = resultadosAtuais.get(id);
+
+  if (evento.target.checked && faixa) selecaoAcumulada.set(id, faixa);
+  else selecaoAcumulada.delete(id);
+
+  atualizarSelecao();
+});
+
+selecionarTodas.addEventListener("change", () => {
+  caixasDosResultados().forEach((caixa) => {
+    const id = idDaCaixa(caixa);
+    const faixa = resultadosAtuais.get(id);
+
+    if (selecionarTodas.checked && faixa) selecaoAcumulada.set(id, faixa);
+    else selecaoAcumulada.delete(id); // desmarcar tira só os desta busca; o resto continua
+  });
+  atualizarSelecao();
+});
+
+listaSelecionadas.addEventListener("click", (evento) => {
+  const botao = evento.target.closest("button[data-id]");
+  if (!botao) return;
+  selecaoAcumulada.delete(botao.dataset.id);
+  atualizarSelecao();
+});
+
+botaoLimparSelecao.addEventListener("click", () => {
+  selecaoAcumulada.clear();
+  atualizarSelecao();
+});
+
+botaoRegistrarSelecionadas.addEventListener("click", () => {
+  const data = dataSelecao.value;
+  if (!data) {
+    avisoSelecao.textContent = "Informe a data em que você ouviu.";
+    return;
+  }
+  if (data > hoje()) {
+    avisoSelecao.textContent = "A data não pode ser no futuro.";
+    return;
+  }
+
+  const itens = [...selecaoAcumulada.values()].map((faixa) => ({ faixa, minutos: faixa.duracaoSeg / 60 })); // "ouvi completa"
+  if (itens.length === 0) return;
+
+  if (!registrarEscutas(itens, data)) {
+    avisoSelecao.textContent = "Não foi possível salvar. O armazenamento do navegador pode estar bloqueado.";
+    return;
+  }
+
+  selecaoAcumulada.clear();
+  atualizarSelecao();
+  mostrarEscutas();
+  mostrarToast(itens.length === 1 ? "1 música registrada ✓" : `${itens.length} músicas registradas ✓`);
 });
 
 // ===== Cálculos do wrapped =====
@@ -573,6 +755,70 @@ listaEscutas.addEventListener("click", (evento) => {
     item.classList.add("faixa--saindo");
     setTimeout(concluir, 260);
   }
+});
+
+// ===== Selecionar várias escutas para remover =====
+function caixasDasEscutas() {
+  return [...listaEscutas.querySelectorAll(".faixa__selecionar input")];
+}
+
+function marcarParaRemover(caixa) {
+  const id = Number(caixa.dataset.id);
+  if (caixa.checked) idsParaRemover.add(id);
+  else idsParaRemover.delete(id);
+}
+
+function atualizarBarraRemocao() {
+  const caixas = caixasDasEscutas();
+  const marcadas = caixas.filter((caixa) => caixa.checked);
+
+  barraRemocao.hidden = caixas.length === 0;
+  caixas.forEach((caixa) => caixa.closest(".faixa").classList.toggle("faixa--selecionada", caixa.checked));
+
+  contagemRemocao.textContent = marcadas.length === 1 ? "1 selecionada" : `${marcadas.length} selecionadas`;
+  botaoRemoverSelecionadas.disabled = marcadas.length === 0;
+  selecionarTodasEscutas.checked = caixas.length > 0 && marcadas.length === caixas.length;
+  selecionarTodasEscutas.indeterminate = marcadas.length > 0 && marcadas.length < caixas.length;
+}
+
+listaEscutas.addEventListener("change", (evento) => {
+  if (!evento.target.matches(".faixa__selecionar input")) return;
+  marcarParaRemover(evento.target);
+  atualizarBarraRemocao();
+});
+
+selecionarTodasEscutas.addEventListener("change", () => {
+  caixasDasEscutas().forEach((caixa) => {
+    caixa.checked = selecionarTodasEscutas.checked;
+    marcarParaRemover(caixa);
+  });
+  atualizarBarraRemocao();
+});
+
+botaoRemoverSelecionadas.addEventListener("click", () => {
+  const ids = new Set(idsParaRemover);
+  if (ids.size === 0) return;
+
+  const pergunta = ids.size === 1 ? "a escuta selecionada" : `as ${ids.size} escutas selecionadas`;
+  if (!confirm(`Remover ${pergunta}? Isso não pode ser desfeito.`)) return;
+
+  const concluir = () => {
+    salvarEscutas(carregarEscutas().filter((escuta) => !ids.has(escuta.id)));
+    idsParaRemover.clear();
+    mostrarEscutas();
+    mostrarToast(ids.size === 1 ? "1 escuta removida" : `${ids.size} escutas removidas`);
+  };
+
+  if (semAnimacao()) {
+    concluir();
+    return;
+  }
+
+  botaoRemoverSelecionadas.disabled = true;
+  caixasDasEscutas()
+    .filter((caixa) => caixa.checked)
+    .forEach((caixa) => caixa.closest(".faixa").classList.add("faixa--saindo"));
+  setTimeout(concluir, 260);
 });
 
 // ===== Backup (exportar e importar JSON) =====
