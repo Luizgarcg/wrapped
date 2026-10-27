@@ -59,6 +59,13 @@
     <section class="tela" id="wrapped" aria-labelledby="titulo-wrapped">
       <h2 id="titulo-wrapped" class="tela__titulo">Seu wrapped</h2>
 
+      <label class="filtro" for="filtro-ano">
+        Período
+        <select id="filtro-ano">
+          <option value="todos">Todos os anos</option>
+        </select>
+      </label>
+
       <div class="painel">
 
         <article class="bloco bloco--horas">
@@ -66,14 +73,25 @@
           <p class="bloco__numero" id="stat-horas">0</p>
         </article>
 
-        <article class="bloco bloco--idade">
-          <h3 class="bloco__titulo">Idade musical</h3>
-          <p class="bloco__numero bloco__numero--medio" id="stat-idade">—</p>
+        <article class="bloco bloco--minutos">
+          <h3 class="bloco__titulo">Minutos de audição</h3>
+          <p class="bloco__numero bloco__numero--minutos" id="stat-minutos">0</p>
         </article>
 
         <article class="bloco bloco--personalidade">
           <h3 class="bloco__titulo">Personalidade</h3>
           <p class="bloco__numero bloco__numero--medio" id="stat-personalidade">—</p>
+        </article>
+
+        <article class="bloco bloco--idade bloco--largo">
+          <h3 class="bloco__titulo">Idade de escuta</h3>
+          <p class="bloco__numero bloco__numero--medio" id="stat-idade">—</p>
+          <p class="bloco__detalhe" id="stat-idade-detalhe"></p>
+          <label class="idade__campo">
+            Seu ano de nascimento (opcional)
+            <input type="number" id="ano-nascimento" min="1930" step="1" inputmode="numeric" placeholder="Ex.: 2003">
+          </label>
+          <p class="bloco__nota">Estimativa pela época das suas músicas. Não é comparada com outras pessoas.</p>
         </article>
 
         <article class="bloco bloco--largo">
@@ -87,11 +105,27 @@
         </article>
 
         <article class="bloco bloco--largo">
-          <h3 class="bloco__titulo">Álbum mais ouvido</h3>
-          <p class="bloco__album" id="stat-album">—</p>
+          <h3 class="bloco__titulo">Álbuns mais ouvidos</h3>
+          <ol class="ranking" id="top-albuns"></ol>
         </article>
 
+        <article class="bloco bloco--largo">
+          <h3 class="bloco__titulo">Principais gêneros</h3>
+          <ol class="ranking" id="top-generos"></ol>
+        </article>
+
+        <details class="bloco bloco--largo playlist">
+          <summary class="bloco__titulo playlist__titulo" id="titulo-playlist">Suas músicas mais ouvidas</summary>
+          <ol class="ranking" id="playlist-lista"></ol>
+        </details>
+
       </div>
+    </section>
+
+    <!-- TELA 3: quiz -->
+    <section class="tela" id="quiz" aria-labelledby="titulo-quiz">
+      <h2 id="titulo-quiz" class="tela__titulo">Quiz do seu ano</h2>
+      <div id="quiz-area" aria-live="polite"></div>
     </section>
 
   </main>
@@ -99,6 +133,7 @@
   <nav class="menu" aria-label="Navegação principal">
     <a class="menu__link" href="#registrar">Registrar</a>
     <a class="menu__link" href="#wrapped">Wrapped</a>
+    <a class="menu__link" href="#quiz">Quiz</a>
   </nav>
 
   <!-- Molde de um item de música. O JavaScript copia este molde para cada resultado. -->
@@ -114,6 +149,10 @@
       <details class="registro">
         <summary class="registro__abrir">Registrar</summary>
         <div class="registro__corpo">
+          <label class="registro__minutos">
+            Data em que você ouviu
+            <input type="date" required>
+          </label>
           <button class="botao botao--amarelo" type="button" data-acao="completa">Ouvi completa</button>
           <label class="registro__minutos">
             Ou informe os minutos ouvidos

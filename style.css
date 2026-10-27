@@ -706,3 +706,198 @@ body:has(#wrapped:target) .menu__link[href="#registrar"] {
 .backup__aviso:empty {
   display: none;
 }
+
+/* Filtro de período do wrapped */
+.filtro {
+  display: grid;
+  gap: 0.3rem;
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+
+.filtro select {
+  font: inherit;
+  color: var(--texto);
+  color-scheme: dark;
+  background: rgba(11, 7, 32, 0.55);
+  border: 2px solid var(--ciano);
+  padding: 0.65rem 0.9rem;
+  box-shadow: 0 0 14px rgba(25, 227, 255, 0.35);
+}
+
+/* Etapa 2: minutos, gêneros e playlist */
+.bloco--minutos {
+  background: linear-gradient(135deg, var(--violeta), #3d7bff);
+  border-color: var(--texto);
+  border-top-color: var(--ciano);
+  box-shadow: 0 0 30px rgba(123, 60, 255, 0.6);
+}
+
+.bloco__numero--minutos {
+  font-size: clamp(2.25rem, 11vw, 3.25rem);
+  line-height: 1.05;
+}
+
+/* posições com 3 dígitos (até 100) precisam de mais largura */
+.ranking li::before {
+  width: auto;
+  min-width: 1.75rem;
+  padding-inline: 0.35rem;
+}
+
+.playlist__titulo {
+  cursor: pointer;
+  margin-bottom: 0;
+}
+
+.playlist[open] .playlist__titulo {
+  margin-bottom: 0.75rem;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  #wrapped:target .bloco:nth-child(7) { animation-delay: 0.6s; }
+  #wrapped:target .bloco:nth-child(8) { animation-delay: 0.7s; }
+  #wrapped:target .bloco:nth-child(9) { animation-delay: 0.8s; }
+}
+
+/* ===== Etapa 3: idade de escuta e quiz ===== */
+
+/* telas: o quiz também esconde a tela de registrar */
+body:has(#quiz:target) #registrar {
+  display: none;
+}
+
+#quiz:target {
+  display: block;
+}
+
+/* menu com 3 links */
+.menu__link {
+  padding-inline: 0.5rem;
+}
+
+body:has(#quiz:target) .menu__link[href="#registrar"] {
+  background: transparent;
+  border-color: var(--borda-vidro);
+  box-shadow: none;
+  color: var(--texto);
+}
+
+body:has(#quiz:target) .menu__link[href="#quiz"] {
+  background: var(--magenta);
+  border-color: var(--magenta);
+  color: #fff;
+  box-shadow: 0 0 18px rgba(255, 46, 147, 0.8);
+}
+
+/* bloco de idade */
+.bloco__detalhe {
+  margin-top: 0.4rem;
+  font-weight: 500;
+}
+
+.bloco__nota {
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+.idade__campo {
+  display: grid;
+  gap: 0.3rem;
+  margin-top: 0.9rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  max-width: 16rem;
+}
+
+.idade__campo input {
+  font: inherit;
+  color: var(--fundo);
+  background: rgba(255, 255, 255, 0.85);
+  border: 2px solid var(--fundo);
+  padding: 0.5rem 0.8rem;
+}
+
+/* quiz */
+.quiz__cartao {
+  background: var(--vidro);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  border: 1px solid var(--borda-vidro);
+  border-top: 6px solid var(--magenta);
+  box-shadow: 0 0 28px rgba(255, 46, 147, 0.35);
+  padding: 1.25rem;
+  display: grid;
+  gap: 1rem;
+  justify-items: start;
+}
+
+.quiz__progresso {
+  font-weight: 700;
+  color: var(--ciano);
+}
+
+.quiz__pergunta {
+  font-family: var(--fonte-titulo);
+  font-size: 1.5rem;
+  line-height: 1.2;
+}
+
+.quiz__pergunta:focus {
+  outline: none;
+}
+
+.quiz__nota {
+  font-size: 0.9rem;
+  opacity: 0.85;
+}
+
+.quiz__opcoes {
+  display: grid;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.botao--opcao {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--texto);
+  border-color: var(--borda-vidro);
+}
+
+.botao:disabled {
+  cursor: default;
+  transform: none;
+}
+
+.opcao--certa {
+  border-color: var(--ciano);
+  background: rgba(25, 227, 255, 0.2);
+  box-shadow: 0 0 18px rgba(25, 227, 255, 0.7);
+}
+
+.opcao--errada {
+  border-color: var(--magenta);
+  background: rgba(255, 46, 147, 0.25);
+}
+
+.quiz__feedback {
+  font-weight: 700;
+}
+
+.quiz__placar {
+  font-family: var(--fonte-titulo);
+  font-weight: 700;
+  font-size: clamp(3.5rem, 18vw, 5.5rem);
+  line-height: 1;
+  text-shadow: 3px 3px 0 var(--magenta), 0 0 24px rgba(25, 227, 255, 0.8);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .quiz__cartao {
+    animation: surgir 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+}
