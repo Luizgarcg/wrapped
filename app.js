@@ -514,6 +514,7 @@ function mostrarWrapped(todasAsEscutas) {
     : "—";
 
   preencherRanking(document.getElementById("top-artistas"), wrapped.artistas);
+  mostrarCorrida(escutas);
   preencherRanking(document.getElementById("top-musicas"), wrapped.musicas);
   preencherRanking(document.getElementById("top-albuns"), wrapped.albuns);
   preencherRanking(document.getElementById("top-generos"), wrapped.generos);
@@ -638,6 +639,283 @@ campoArquivo.addEventListener("change", async () => {
     campoArquivo.value = ""; // permite escolher o mesmo arquivo de novo
   }
 });
+
+// ===== Corrida dos artistas =====
+const NOMES_MESES = [
+  "jan",
+  "fev",
+  "mar",
+  "abr",
+  "mai",
+  "jun",
+  "jul",
+  "ago",
+  "set",
+  "out",
+  "nov",
+  "dez",
+];
+const CORES_CORRIDA = [
+  "var(--magenta)",
+  "var(--ciano)",
+  "var(--amarelo)",
+  "#b18cff",
+  "#ff9a3c",
+];
+const NS_SVG = "http://www.w3.org/2000/svg";
+
+// Lista todos os meses entre a primeira e a última escuta (inclusive meses sem escuta): "2026-01", "2026-02"...
+function listarMeses(escutas) {
+  const meses = escutas
+    .map((e) => (e.data || "").slice(0, 7))
+    .filter((m) => /^\d{4}-\d{2}$/.test(m))
+    .sort();
+  if (meses.length === 0) return [];
+
+  let [ano, mes] = meses[0].split("-").map(Number);
+  const [anoFim, mesFim] = meses[meses.length - 1].split("-").map(Number);
+  const lista = [];
+
+  while (ano < anoFim || (ano === anoFim && mes <= mesFim)) {
+    lista.push(`${ano}-${String(mes).padStart(2, "0")}`);
+    mes += 1;
+    if (mes > 12) {
+      mes = 1;
+      ano += 1;
+    }
+  }
+  return lista;
+}
+
+function rotuloMes(mes) {
+  const [ano, numero] = mes.split("-");
+  return `${NOMES_MESES[Number(numero) - 1]}/${ano.slice(2)}`;
+}
+
+// Posição de cada um dos 5 artistas favoritos em cada mês, pelo total de minutos acumulado até aquele mês.
+// posição null = ainda não tinha ouvido esse artista.
+function calcularCorrida(escutas) {
+  const meses = listarMeses(escutas);
+  const nomes = somarPor(
+    escutas,
+    (e) => e.artista,
+    (e) => e.artista,
+  )
+    .slice(0, 5)
+    .map((artista) => artista.rotulo);
+
+  const minutosPorMes = new Map(
+    nomes.map((nome) => [nome, meses.map(() => 0)]),
+  );
+  for (const escuta of escutas) {
+    const linha = minutosPorMes.get(escuta.artista);
+    const indice = meses.indexOf((escuta.data || "").slice(0, 7));
+    if (linha && indice >= 0) linha[indice] += escuta.minutosOuvidos;
+  }
+
+  const acumulado = nomes.map((nome) => {
+    let soma = 0;
+    return minutosPorMes.get(nome).map((minutos) => (soma += minutos));
+  });
+
+  const posicoes = nomes.map(() => meses.map(() => null));
+  meses.forEach((_, m) => {
+    nomes
+      .map((nome, i) => ({ i, total: acumulado[i][m] }))
+      .filter((artista) => artista.total > 0)
+      .sort((a, b) => b.total - a.total || a.i - b.i) // empate: quem está mais bem colocado no ranking geral
+      .forEach((artista, posicao) => {
+        posicoes[artista.i][m] = posicao + 1;
+      });
+  });
+
+  return {
+    meses,
+    artistas: nomes.map((nome, i) => ({ nome, posicoes: posicoes[i] })),
+  };
+}
+
+function criarSvg(tag, atributos = {}) {
+  const elemento = document.createElementNS(NS_SVG, tag);
+  for (const [chave, valor] of Object.entries(atributos))
+    elemento.setAttribute(chave, valor);
+  return elemento;
+}
+
+function desenharCorrida(corrida) {
+  const { meses, artistas } = corrida;
+  const n = meses.length;
+  const espaco = n <= 5 ? 80 : 64;
+  const esquerda = 40;
+  const topo = 24;
+  const passoY = 34;
+  const largura = esquerda + 24 + (n - 1) * espaco + 24;
+  const altura = topo + 4 * passoY + 44;
+  const x = (m) => esquerda + 24 + m * espaco;
+  const y = (posicao) => topo + (posicao - 1) * passoY;
+
+  const ultimo = n - 1;
+  const lider = artistas.find((a) => a.posicoes[ultimo] === 1);
+
+  const grafico = criarSvg("svg", {
+    viewBox: `0 0 ${largura} ${altura}`,
+    width: largura,
+    height: altura,
+    role: "img",
+    "aria-labelledby": "corrida-titulo corrida-desc",
+  });
+  grafico.classList.add("corrida__svg");
+
+  const titulo = criarSvg("title", { id: "corrida-titulo" });
+  titulo.textContent = "Corrida dos artistas";
+  const descricao = criarSvg("desc", { id: "corrida-desc" });
+  descricao.textContent = `Posição acumulada de ${artistas.length} artistas de ${rotuloMes(meses[0])} a ${rotuloMes(meses[ultimo])}. No último mês, o primeiro lugar é ${lider ? lider.nome : "indefinido"}.`;
+  grafico.append(titulo, descricao);
+
+  // linhas de grade e posições (1º a 5º)
+  for (let posicao = 1; posicao <= 5; posicao++) {
+    const grade = criarSvg("line", {
+      x1: esquerda,
+      x2: largura - 8,
+      y1: y(posicao),
+      y2: y(posicao),
+    });
+    grade.classList.add("corrida__grade");
+    const rotulo = criarSvg("text", {
+      x: esquerda - 8,
+      y: y(posicao) + 4,
+      "text-anchor": "end",
+    });
+    rotulo.classList.add("corrida__texto");
+    rotulo.textContent = `${posicao}º`;
+    grafico.append(grade, rotulo);
+  }
+
+  // meses
+  meses.forEach((mes, m) => {
+    const rotulo = criarSvg("text", {
+      x: x(m),
+      y: y(5) + 30,
+      "text-anchor": "middle",
+    });
+    rotulo.classList.add("corrida__texto");
+    rotulo.textContent = rotuloMes(mes);
+    grafico.append(rotulo);
+  });
+
+  // linhas e marcadores de cada artista
+  artistas.forEach((artista, i) => {
+    const cor = CORES_CORRIDA[i];
+    const pontos = artista.posicoes
+      .map((posicao, m) =>
+        posicao === null ? null : { x: x(m), y: y(posicao) },
+      )
+      .filter(Boolean);
+
+    let caminho = `M ${pontos[0].x} ${pontos[0].y}`;
+    for (let p = 1; p < pontos.length; p++) {
+      const meio = (pontos[p - 1].x + pontos[p].x) / 2;
+      caminho += ` C ${meio} ${pontos[p - 1].y}, ${meio} ${pontos[p].y}, ${pontos[p].x} ${pontos[p].y}`;
+    }
+
+    const linha = criarSvg("path", { d: caminho, pathLength: 1 });
+    linha.classList.add("corrida__linha");
+    linha.style.stroke = cor;
+    linha.style.filter = `drop-shadow(0 0 5px ${cor})`;
+    linha.style.setProperty("--atraso", `${i * 0.15}s`);
+    grafico.append(linha);
+
+    for (const ponto of pontos) {
+      const marcador = criarSvg("rect", {
+        x: ponto.x - 6,
+        y: ponto.y - 6,
+        width: 12,
+        height: 12,
+      });
+      marcador.classList.add("corrida__marcador");
+      marcador.style.fill = cor;
+      grafico.append(marcador);
+    }
+  });
+
+  const rolagem = criarElemento("div", "corrida__rolagem");
+  rolagem.append(grafico);
+  return rolagem;
+}
+
+function criarLegendaCorrida(corrida) {
+  const ultimo = corrida.meses.length - 1;
+  const legenda = criarElemento("ul", "corrida__legenda");
+
+  [...corrida.artistas.entries()]
+    .sort((a, b) => a[1].posicoes[ultimo] - b[1].posicoes[ultimo])
+    .forEach(([i, artista]) => {
+      const cor = criarElemento("span", "corrida__cor");
+      cor.style.background = CORES_CORRIDA[i];
+      cor.setAttribute("aria-hidden", "true");
+
+      const item = document.createElement("li");
+      item.append(cor, `${artista.posicoes[ultimo]}º ${artista.nome}`);
+      legenda.append(item);
+    });
+
+  return legenda;
+}
+
+// Versão em tabela do mesmo gráfico (útil em tela pequena e para leitores de tela)
+function criarTabelaCorrida(corrida) {
+  const tabela = document.createElement("table");
+  tabela.className = "corrida__tabela";
+
+  const cabecalho = document.createElement("tr");
+  cabecalho.append(
+    criarElemento("th", "", "Artista"),
+    ...corrida.meses.map((mes) => criarElemento("th", "", rotuloMes(mes))),
+  );
+
+  const corpo = corrida.artistas.map((artista) => {
+    const linha = document.createElement("tr");
+    linha.append(
+      criarElemento("th", "", artista.nome),
+      ...artista.posicoes.map((posicao) =>
+        criarElemento("td", "", posicao === null ? "—" : `${posicao}º`),
+      ),
+    );
+    return linha;
+  });
+
+  tabela.append(cabecalho, ...corpo);
+
+  const detalhes = criarElemento("details", "corrida__detalhes");
+  detalhes.append(
+    criarElemento("summary", "", "Ver em tabela"),
+    criarElemento("div", "corrida__rolagem", ""),
+  );
+  detalhes.querySelector("div").append(tabela);
+  return detalhes;
+}
+
+function mostrarCorrida(escutas) {
+  const area = document.getElementById("corrida-area");
+  const corrida = calcularCorrida(escutas);
+
+  if (corrida.artistas.length < 2 || corrida.meses.length < 2) {
+    area.replaceChildren(
+      criarElemento(
+        "p",
+        "vazio",
+        "Registre escutas de pelo menos 2 artistas, em pelo menos 2 meses diferentes, para ver a corrida.",
+      ),
+    );
+    return;
+  }
+
+  area.replaceChildren(
+    desenharCorrida(corrida),
+    criarLegendaCorrida(corrida),
+    criarTabelaCorrida(corrida),
+  );
+}
 
 // ===== Quiz =====
 const areaQuiz = document.getElementById("quiz-area");

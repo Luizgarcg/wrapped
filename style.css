@@ -901,3 +901,99 @@ body:has(#quiz:target) .menu__link[href="#quiz"] {
     animation: surgir 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) both;
   }
 }
+
+/* ===== Etapa 4: corrida dos artistas ===== */
+.corrida__rolagem {
+  overflow-x: auto;
+  margin-top: 0.75rem;
+}
+
+.corrida__svg {
+  display: block;
+  max-width: none;
+}
+
+.corrida__grade {
+  stroke: rgba(255, 255, 255, 0.18);
+  stroke-width: 1;
+  stroke-dasharray: 3 4;
+}
+
+.corrida__texto {
+  fill: var(--texto);
+  font-family: var(--fonte-texto);
+  font-size: 12px;
+}
+
+.corrida__linha {
+  fill: none;
+  stroke-width: 4;
+  stroke-linecap: square;
+  stroke-dasharray: 1;
+}
+
+.corrida__marcador {
+  stroke: var(--fundo);
+  stroke-width: 2;
+}
+
+.corrida__legenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.corrida__legenda li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.corrida__cor {
+  width: 0.9rem;
+  height: 0.9rem;
+  flex: none;
+}
+
+.corrida__detalhes {
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.corrida__detalhes summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.corrida__tabela {
+  border-collapse: collapse;
+  min-width: 100%;
+}
+
+.corrida__tabela th,
+.corrida__tabela td {
+  padding: 0.35rem 0.6rem;
+  border: 1px solid var(--borda-vidro);
+  text-align: center;
+  white-space: nowrap;
+}
+
+.corrida__tabela th:first-child {
+  text-align: left;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .corrida__linha {
+    animation: tracar 1.2s ease-out var(--atraso, 0s) both;
+  }
+
+  @keyframes tracar {
+    from { stroke-dashoffset: 1; }
+    to   { stroke-dashoffset: 0; }
+  }
+
+  #wrapped:target .bloco:nth-child(10) { animation-delay: 0.9s; }
+}
