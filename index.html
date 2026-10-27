@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Meu Wrapped</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header class="topo">
+    <div class="equalizador" aria-hidden="true">
+      <span></span><span></span><span></span><span></span><span></span>
+    </div>
+    <h1 class="topo__titulo">Meu Wrapped</h1>
+    <p class="topo__texto">Registre o que você ouve e veja seu ano em música.</p>
+  </header>
+
+  <main>
+
+    <!-- TELA 1: registrar músicas -->
+    <section class="tela" id="registrar" aria-labelledby="titulo-registrar">
+      <h2 id="titulo-registrar" class="tela__titulo">O que você ouviu?</h2>
+
+      <form class="busca" id="form-busca" role="search">
+        <label class="busca__rotulo" for="campo-busca">Buscar música ou artista</label>
+        <div class="busca__linha">
+          <input class="busca__campo" id="campo-busca" type="search"
+                 placeholder="Ex.: Blank Space" autocomplete="off" required>
+          <button class="botao botao--escuro" type="submit">Buscar</button>
+        </div>
+      </form>
+
+      <!-- O JavaScript vai preencher esta lista com os resultados da busca -->
+      <ul class="lista" id="resultados" aria-live="polite"></ul>
+      <p class="vazio" id="msg-busca">Busque uma música para registrar quanto você ouviu.</p>
+
+      <h2 class="tela__titulo tela__titulo--secundario">Suas escutas</h2>
+      <ul class="lista" id="escutas"></ul>
+      <p class="vazio" id="msg-escutas">Nenhuma escuta registrada ainda.</p>
+
+      <div class="backup">
+        <h3 class="backup__titulo">Backup</h3>
+        <p class="backup__texto">Seus dados ficam só neste navegador. Exporte um arquivo para não perder nada.</p>
+        <div class="backup__botoes">
+          <button class="botao botao--amarelo" type="button" id="btn-exportar">Exportar backup</button>
+          <button class="botao botao--escuro" type="button" id="btn-importar">Importar backup</button>
+          <input type="file" id="arquivo-backup" accept="application/json,.json" hidden>
+        </div>
+        <p class="backup__aviso" id="msg-backup" role="status"></p>
+      </div>
+    </section>
+
+    <!-- TELA 2: o wrapped -->
+    <section class="tela" id="wrapped" aria-labelledby="titulo-wrapped">
+      <h2 id="titulo-wrapped" class="tela__titulo">Seu wrapped</h2>
+
+      <div class="painel">
+
+        <article class="bloco bloco--horas">
+          <h3 class="bloco__titulo">Horas ouvidas</h3>
+          <p class="bloco__numero" id="stat-horas">0</p>
+        </article>
+
+        <article class="bloco bloco--idade">
+          <h3 class="bloco__titulo">Idade musical</h3>
+          <p class="bloco__numero bloco__numero--medio" id="stat-idade">—</p>
+        </article>
+
+        <article class="bloco bloco--personalidade">
+          <h3 class="bloco__titulo">Personalidade</h3>
+          <p class="bloco__numero bloco__numero--medio" id="stat-personalidade">—</p>
+        </article>
+
+        <article class="bloco bloco--largo">
+          <h3 class="bloco__titulo">Top artistas</h3>
+          <ol class="ranking" id="top-artistas"></ol>
+        </article>
+
+        <article class="bloco bloco--largo">
+          <h3 class="bloco__titulo">Top músicas</h3>
+          <ol class="ranking" id="top-musicas"></ol>
+        </article>
+
+        <article class="bloco bloco--largo">
+          <h3 class="bloco__titulo">Álbum mais ouvido</h3>
+          <p class="bloco__album" id="stat-album">—</p>
+        </article>
+
+      </div>
+    </section>
+
+  </main>
+
+  <nav class="menu" aria-label="Navegação principal">
+    <a class="menu__link" href="#registrar">Registrar</a>
+    <a class="menu__link" href="#wrapped">Wrapped</a>
+  </nav>
+
+  <!-- Molde de um item de música. O JavaScript copia este molde para cada resultado. -->
+  <template id="tpl-faixa">
+    <li class="faixa">
+      <img class="faixa__capa" alt="">
+      <div class="faixa__info">
+        <strong class="faixa__titulo"></strong>
+        <span class="faixa__artista"></span>
+      </div>
+      <span class="faixa__duracao"></span>
+
+      <details class="registro">
+        <summary class="registro__abrir">Registrar</summary>
+        <div class="registro__corpo">
+          <button class="botao botao--amarelo" type="button" data-acao="completa">Ouvi completa</button>
+          <label class="registro__minutos">
+            Ou informe os minutos ouvidos
+            <input type="number" min="0" step="any" inputmode="decimal" placeholder="Ex.: 2,5">
+          </label>
+          <button class="botao botao--escuro" type="button" data-acao="parcial">Salvar minutos</button>
+        </div>
+      </details>
+    </li>
+  </template>
+
+  <script src="app.js"></script>
+</body>
+</html>
