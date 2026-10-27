@@ -12,6 +12,10 @@
 </head>
 <body>
 
+  <div class="fundo" aria-hidden="true">
+    <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+  </div>
+
   <header class="topo">
     <div class="equalizador" aria-hidden="true">
       <span></span><span></span><span></span><span></span><span></span>
@@ -44,12 +48,21 @@
       <p class="vazio" id="msg-escutas">Nenhuma escuta registrada ainda.</p>
 
       <div class="backup">
-        <h3 class="backup__titulo">Backup</h3>
+        <h3 class="backup__titulo">Backup e limpeza</h3>
         <p class="backup__texto">Seus dados ficam só neste navegador. Exporte um arquivo para não perder nada.</p>
         <div class="backup__botoes">
           <button class="botao botao--amarelo" type="button" id="btn-exportar">Exportar backup</button>
           <button class="botao botao--escuro" type="button" id="btn-importar">Importar backup</button>
           <input type="file" id="arquivo-backup" accept="application/json,.json" hidden>
+          <button class="botao botao--perigo" type="button" id="btn-apagar-tudo">Apagar todas</button>
+        </div>
+
+        <div class="backup__confirmar" id="confirmar-apagar" role="group" aria-labelledby="texto-confirmar" hidden>
+          <p id="texto-confirmar"></p>
+          <div class="backup__botoes">
+            <button class="botao botao--cheio" type="button" id="btn-confirmar-apagar">Sim, apagar tudo</button>
+            <button class="botao botao--neutro" type="button" id="btn-cancelar-apagar">Cancelar</button>
+          </div>
         </div>
         <p class="backup__aviso" id="msg-backup" role="status"></p>
       </div>
@@ -135,6 +148,8 @@
     </section>
 
   </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <nav class="menu" aria-label="Navegação principal">
     <a class="menu__link" href="#registrar">Registrar</a>

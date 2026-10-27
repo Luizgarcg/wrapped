@@ -997,3 +997,281 @@ body:has(#quiz:target) .menu__link[href="#quiz"] {
 
   #wrapped:target .bloco:nth-child(10) { animation-delay: 0.9s; }
 }
+
+/* =====================================================
+   Etapa 5: apagar tudo, feedback e mais movimento
+   ===================================================== */
+
+/* ----- apagar todas ----- */
+.botao--perigo {
+  background: transparent;
+  color: var(--texto);
+  border-color: var(--magenta);
+  box-shadow: none;
+}
+
+.botao--perigo:hover {
+  background: rgba(255, 46, 147, 0.25);
+}
+
+.botao--cheio {
+  background: var(--magenta);
+  color: #fff;
+  border-color: var(--magenta);
+  box-shadow: 4px 4px 0 var(--violeta), 0 0 18px rgba(255, 46, 147, 0.7);
+}
+
+.botao--neutro {
+  background: transparent;
+  color: var(--texto);
+  border-color: var(--borda-vidro);
+}
+
+.backup__confirmar {
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 2px dashed var(--magenta);
+  background: rgba(255, 46, 147, 0.12);
+}
+
+.backup__confirmar p {
+  font-weight: 500;
+  margin-bottom: 0.75rem;
+}
+
+.backup__confirmar[hidden] {
+  display: none;
+}
+
+/* ----- aviso rápido ----- */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
+  z-index: 10;
+  max-width: calc(100vw - 2rem);
+  padding: 0.6rem 1.1rem;
+  background: var(--amarelo);
+  color: var(--fundo);
+  font-weight: 700;
+  box-shadow: 4px 4px 0 var(--magenta), 0 0 22px rgba(255, 225, 77, 0.6);
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 16px);
+}
+
+.toast--visivel {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* ----- quadrados flutuantes no fundo ----- */
+.fundo {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.fundo span {
+  position: absolute;
+  left: var(--x);
+  bottom: var(--y);
+  width: var(--t);
+  height: var(--t);
+  border: 2px solid var(--c);
+  box-shadow: 0 0 14px var(--c), inset 0 0 14px var(--c);
+  opacity: 0.35;
+}
+
+.fundo span:nth-child(1) { --x: 6%;  --y: 12%; --t: 38px; --c: var(--magenta); --d: 26s; --a: -4s; }
+.fundo span:nth-child(2) { --x: 20%; --y: 55%; --t: 22px; --c: var(--ciano);   --d: 34s; --a: -18s; }
+.fundo span:nth-child(3) { --x: 34%; --y: 28%; --t: 54px; --c: var(--amarelo); --d: 40s; --a: -9s; }
+.fundo span:nth-child(4) { --x: 48%; --y: 70%; --t: 28px; --c: var(--violeta); --d: 30s; --a: -22s; }
+.fundo span:nth-child(5) { --x: 62%; --y: 18%; --t: 44px; --c: var(--ciano);   --d: 36s; --a: -14s; }
+.fundo span:nth-child(6) { --x: 76%; --y: 48%; --t: 30px; --c: var(--magenta); --d: 28s; --a: -2s; }
+.fundo span:nth-child(7) { --x: 88%; --y: 8%;  --t: 50px; --c: var(--violeta); --d: 38s; --a: -26s; }
+.fundo span:nth-child(8) { --x: 94%; --y: 62%; --t: 24px; --c: var(--amarelo); --d: 32s; --a: -11s; }
+
+/* ----- esqueleto da busca ----- */
+.faixa--esqueleto {
+  grid-template-columns: 3.5rem 1fr;
+}
+
+.esqueleto__capa {
+  width: 3.5rem;
+  height: 3.5rem;
+}
+
+.esqueleto__info {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.esqueleto__capa,
+.esqueleto__linha {
+  display: block;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.esqueleto__linha {
+  height: 0.8rem;
+  width: 85%;
+}
+
+.esqueleto__linha--curta {
+  width: 50%;
+}
+
+/* ----- barras de proporção nos rankings ----- */
+.ranking li {
+  position: relative;
+  padding-bottom: 0.5rem;
+}
+
+.ranking__barra {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--magenta), var(--ciano));
+  box-shadow: 0 0 8px var(--magenta);
+  transform-origin: left;
+  transform: scaleX(var(--proporcao, 0));
+}
+
+/* ===== Movimento (só para quem não pediu menos movimento) ===== */
+@media (prefers-reduced-motion: no-preference) {
+
+  /* quadrados subindo e girando */
+  .fundo span {
+    bottom: -14vh;
+    animation: subir var(--d) linear var(--a) infinite;
+  }
+
+  @keyframes subir {
+    from { transform: translateY(0) rotate(0deg); }
+    to   { transform: translateY(-130vh) rotate(200deg); }
+  }
+
+  /* troca de tela */
+  .tela {
+    animation: trocar 0.4s ease-out;
+  }
+
+  @keyframes trocar {
+    from { opacity: 0; transform: translateY(14px); }
+  }
+
+  /* itens mantêm a transformação livre para o hover funcionar depois de entrar */
+  .faixa,
+  #wrapped:target .bloco {
+    animation-fill-mode: backwards;
+  }
+
+  /* a lista de escutas só anima o item novo e o que está saindo */
+  #escutas .faixa:not(.faixa--nova) {
+    animation: none;
+  }
+
+  #escutas .faixa.faixa--nova {
+    animation: destacar 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  @keyframes destacar {
+    from { opacity: 0; transform: translateY(-14px) scale(0.97); }
+    40%  { opacity: 1; transform: none; box-shadow: 0 0 0 3px var(--amarelo), 0 0 40px var(--amarelo); }
+  }
+
+  #escutas .faixa.faixa--saindo {
+    animation: sair 0.26s ease-in forwards;
+  }
+
+  @keyframes sair {
+    to { opacity: 0; transform: translateX(48px) scale(0.95); }
+  }
+
+  /* esqueleto pulsando */
+  .esqueleto__capa,
+  .esqueleto__linha {
+    background-image: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.28), transparent);
+    background-size: 200% 100%;
+    animation: brilhar 1.2s linear infinite;
+  }
+
+  @keyframes brilhar {
+    from { background-position: 200% 0; }
+    to   { background-position: -200% 0; }
+  }
+
+  /* rankings: linhas entram em sequência e as barras crescem */
+  #wrapped:target .ranking li {
+    animation: entrar 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+  }
+
+  #wrapped:target .ranking li:nth-child(2) { animation-delay: 0.08s; }
+  #wrapped:target .ranking li:nth-child(3) { animation-delay: 0.16s; }
+  #wrapped:target .ranking li:nth-child(4) { animation-delay: 0.24s; }
+  #wrapped:target .ranking li:nth-child(n + 5) { animation-delay: 0.32s; }
+
+  .ranking__barra {
+    animation: crescer 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.3s backwards;
+  }
+
+  @keyframes crescer {
+    from { transform: scaleX(0); }
+  }
+
+  /* aviso rápido */
+  .toast {
+    transition: opacity 0.25s, transform 0.25s;
+  }
+
+  /* menu e botões respondem ao toque */
+  .menu__link {
+    transition: background-color 0.25s, border-color 0.25s, box-shadow 0.25s, color 0.25s, transform 0.15s;
+  }
+
+  .menu__link:active {
+    transform: scale(0.94);
+  }
+
+  .faixa,
+  .bloco {
+    transition: transform 0.18s, box-shadow 0.18s;
+  }
+
+  /* quiz: acerto pulsa, erro treme */
+  .opcao--certa {
+    animation: pulsar 0.5s ease-out;
+  }
+
+  .opcao--errada {
+    animation: tremer 0.4s ease-out;
+  }
+
+  @keyframes pulsar {
+    40% { transform: scale(1.04); }
+  }
+
+  @keyframes tremer {
+    20% { transform: translateX(-7px); }
+    40% { transform: translateX(7px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(4px); }
+  }
+}
+
+/* levantar ao passar o mouse (só em aparelhos com mouse) */
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .faixa:not(.faixa--esqueleto):hover {
+    transform: translate(-3px, -3px);
+    box-shadow: 5px 5px 0 var(--cor), 0 0 30px color-mix(in srgb, var(--cor) 60%, transparent);
+  }
+
+  #wrapped .bloco:hover {
+    transform: translateY(-4px);
+  }
+}

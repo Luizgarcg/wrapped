@@ -9,6 +9,59 @@ const listaEscutas = document.getElementById("escutas");
 // Guarda os resultados da última busca (usados ao registrar a escuta)
 let resultadosAtuais = new Map();
 
+// Id da escuta recém-registrada (ganha um destaque na lista)
+let ultimoRegistradoId = null;
+
+// Respeita quem pediu menos movimento no aparelho (sem matchMedia também conta como "sem animação")
+const semAnimacao = () => !window.matchMedia || window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+// Aviso rápido no pé da tela
+const toast = document.getElementById("toast");
+let temporizadorToast;
+
+function mostrarToast(texto) {
+  toast.textContent = texto;
+  toast.classList.add("toast--visivel");
+  clearTimeout(temporizadorToast);
+  temporizadorToast = setTimeout(() => toast.classList.remove("toast--visivel"), 2600);
+}
+
+// Cartões "fantasma" enquanto a busca carrega
+function criarEsqueleto() {
+  const item = criarElemento("li", "faixa faixa--esqueleto");
+  item.setAttribute("aria-hidden", "true");
+
+  const info = criarElemento("div", "esqueleto__info");
+  info.append(criarElemento("span", "esqueleto__linha"), criarElemento("span", "esqueleto__linha esqueleto__linha--curta"));
+
+  item.append(criarElemento("div", "esqueleto__capa"), info);
+  return item;
+}
+
+// Números que "sobem" até o valor final (ou aparecem direto, se o movimento estiver reduzido)
+function animarNumero(elemento, fim, formatar, animar) {
+  const id = String(Number(elemento.dataset.animacao || 0) + 1);
+  elemento.dataset.animacao = id;
+
+  if (!animar || semAnimacao() || fim === 0) {
+    elemento.textContent = formatar(fim);
+    return;
+  }
+
+  const duracao = 900;
+  const inicio = performance.now();
+
+  const passo = (agora) => {
+    if (elemento.dataset.animacao !== id) return; // outra animação começou
+    const progresso = Math.min(1, (agora - inicio) / duracao);
+    const suave = 1 - Math.pow(1 - progresso, 3);
+    elemento.textContent = formatar(progresso === 1 ? fim : fim * suave);
+    if (progresso < 1) requestAnimationFrame(passo);
+  };
+
+  requestAnimationFrame(passo);
+}
+
 // ===== API do iTunes =====
 const URL_API = "https://itunes.apple.com/search";
 
@@ -55,17 +108,13 @@ function formatarDuracao(segundos) {
 }
 
 function criarItem(faixa) {
-  const item = document
-    .importNode(moldeFaixa.content, true)
-    .querySelector(".faixa");
+  const item = document.importNode(moldeFaixa.content, true).querySelector(".faixa");
 
   item.dataset.id = faixa.id;
   item.querySelector(".faixa__capa").src = faixa.capa;
   item.querySelector(".faixa__titulo").textContent = faixa.titulo;
   item.querySelector(".faixa__artista").textContent = faixa.artista;
-  item.querySelector(".faixa__duracao").textContent = formatarDuracao(
-    faixa.duracaoSeg,
-  );
+  item.querySelector(".faixa__duracao").textContent = formatarDuracao(faixa.duracaoSeg);
 
   const campoData = item.querySelector('input[type="date"]');
   campoData.value = hoje();
@@ -88,21 +137,22 @@ formBusca.addEventListener("submit", async (evento) => {
 
   const botao = formBusca.querySelector("button");
   botao.disabled = true;
-  listaResultados.replaceChildren();
+  listaResultados.replaceChildren(...Array.from({ length: 4 }, () => criarEsqueleto()));
   msgBusca.textContent = "Buscando...";
 
   try {
     const faixas = await buscarMusicas(termo);
 
     if (faixas.length === 0) {
+      listaResultados.replaceChildren();
       msgBusca.textContent = "Nenhum resultado. Tente outro nome.";
     } else {
       mostrarResultados(faixas);
     }
   } catch (erro) {
     console.error(erro);
-    msgBusca.textContent =
-      "Não foi possível buscar agora. Verifique sua internet e tente de novo.";
+    listaResultados.replaceChildren();
+    msgBusca.textContent = "Não foi possível buscar agora. Verifique sua internet e tente de novo.";
   } finally {
     botao.disabled = false;
   }
@@ -138,8 +188,9 @@ function hoje() {
 function registrarEscuta(faixa, minutosOuvidos, data) {
   const escutas = carregarEscutas();
 
+  ultimoRegistradoId = Date.now();
   escutas.push({
-    id: Date.now(),
+    id: ultimoRegistradoId,
     musicaId: faixa.id,
     titulo: faixa.titulo,
     artista: faixa.artista,
@@ -169,6 +220,7 @@ function formatarData(data) {
 function criarItemEscuta(escuta) {
   const item = document.createElement("li");
   item.className = "faixa";
+  if (escuta.id === ultimoRegistradoId) item.classList.add("faixa--nova");
 
   const capa = document.createElement("img");
   capa.className = "faixa__capa";
@@ -190,9 +242,7 @@ function criarItemEscuta(escuta) {
 
   const tempo = document.createElement("span");
   tempo.className = "faixa__duracao";
-  tempo.textContent = escuta.completa
-    ? "Completa"
-    : formatarMinutos(escuta.minutosOuvidos);
+  tempo.textContent = escuta.completa ? "Completa" : formatarMinutos(escuta.minutosOuvidos);
 
   const remover = document.createElement("button");
   remover.type = "button";
@@ -209,6 +259,7 @@ function mostrarEscutas() {
   atualizarFiltroAno(escutas);
   const maisRecentesPrimeiro = [...escutas].reverse();
   listaEscutas.replaceChildren(...maisRecentesPrimeiro.map(criarItemEscuta));
+  ultimoRegistradoId = null; // o destaque vale só para esta renderização
   mostrarWrapped(escutas);
 }
 
@@ -257,26 +308,21 @@ listaResultados.addEventListener("click", (evento) => {
       return;
     }
     if (minutos > duracaoMin) {
-      mostrarAviso(
-        item,
-        `A música tem só ${formatarMinutos(duracaoMin)}. Informe um valor menor.`,
-      );
+      mostrarAviso(item, `A música tem só ${formatarMinutos(duracaoMin)}. Informe um valor menor.`);
       return;
     }
     campo.value = "";
   }
 
   if (!registrarEscuta(faixa, minutos, data)) {
-    mostrarAviso(
-      item,
-      "Não foi possível salvar. O armazenamento do navegador pode estar bloqueado.",
-    );
+    mostrarAviso(item, "Não foi possível salvar. O armazenamento do navegador pode estar bloqueado.");
     return;
   }
 
   item.querySelector(".registro__aviso")?.remove();
   item.querySelector("details").open = false; // fecha o formulário
   mostrarEscutas();
+  mostrarToast("Escuta salva ✓");
 });
 
 // ===== Cálculos do wrapped =====
@@ -288,11 +334,7 @@ function somarPor(escutas, chaveFn, rotuloFn) {
 
   for (const escuta of escutas) {
     const chave = chaveFn(escuta);
-    const grupo = grupos.get(chave) || {
-      rotulo: rotuloFn(escuta),
-      minutos: 0,
-      vezes: 0,
-    };
+    const grupo = grupos.get(chave) || { rotulo: rotuloFn(escuta), minutos: 0, vezes: 0 };
     grupo.minutos += escuta.minutosOuvidos;
     grupo.vezes += 1;
     grupos.set(chave, grupo);
@@ -307,37 +349,26 @@ function calcularWrapped(escutas) {
   // ano médio de lançamento, com peso nos minutos ouvidos
   const anoMedio =
     totalMin > 0
-      ? Math.round(
-          escutas.reduce((soma, e) => soma + e.ano * e.minutosOuvidos, 0) /
-            totalMin,
-        )
+      ? Math.round(escutas.reduce((soma, e) => soma + e.ano * e.minutosOuvidos, 0) / totalMin)
       : null;
 
   return {
     qtd: escutas.length,
     totalMin,
     anoMedio,
-    artistas: somarPor(
-      escutas,
-      (e) => e.artista,
-      (e) => e.artista,
-    ),
+    artistas: somarPor(escutas, (e) => e.artista, (e) => e.artista),
     // músicas: ranking por número de vezes ouvidas; empate decide pelos minutos
-    musicas: somarPor(
-      escutas,
-      (e) => e.musicaId,
-      (e) => `${e.titulo} — ${e.artista}`,
-    ).sort((a, b) => b.vezes - a.vezes || b.minutos - a.minutos),
+    musicas: somarPor(escutas, (e) => e.musicaId, (e) => `${e.titulo} — ${e.artista}`).sort(
+      (a, b) => b.vezes - a.vezes || b.minutos - a.minutos
+    ),
     // gêneros: escutas sem gênero (registradas antes dessa função) não entram
-    generos: somarPor(
-      escutas,
-      (e) => e.genero || "Desconhecido",
-      (e) => e.genero || "Desconhecido",
-    ).filter((g) => g.rotulo !== "Desconhecido"),
+    generos: somarPor(escutas, (e) => e.genero || "Desconhecido", (e) => e.genero || "Desconhecido").filter(
+      (g) => g.rotulo !== "Desconhecido"
+    ),
     albuns: somarPor(
       escutas,
       (e) => `${e.album}|${e.artista}`,
-      (e) => `${e.album || "Sem álbum"} — ${e.artista}`,
+      (e) => `${e.album || "Sem álbum"} — ${e.artista}`
     ),
   };
 }
@@ -367,7 +398,8 @@ function formatarTempo(minutos) {
   return `${(minutos / 60).toFixed(1).replace(".", ",")} h`;
 }
 
-function preencherRanking(lista, itens, limite = 5) {
+// medida: o que a barra compara entre os itens ("minutos" ou "vezes")
+function preencherRanking(lista, itens, limite = 5, medida = "minutos") {
   if (itens.length === 0) {
     const vazio = document.createElement("li");
     vazio.className = "ranking__vazio";
@@ -376,7 +408,10 @@ function preencherRanking(lista, itens, limite = 5) {
     return;
   }
 
-  const linhas = itens.slice(0, limite).map((item) => {
+  const mostrados = itens.slice(0, limite);
+  const maior = Math.max(...mostrados.map((item) => item[medida]));
+
+  const linhas = mostrados.map((item) => {
     const linha = document.createElement("li");
 
     const nome = document.createElement("span");
@@ -387,7 +422,11 @@ function preencherRanking(lista, itens, limite = 5) {
     tempo.className = "ranking__tempo";
     tempo.textContent = `${item.vezes}x · ${formatarTempo(item.minutos)}`;
 
-    linha.append(nome, tempo);
+    const barra = document.createElement("span");
+    barra.className = "ranking__barra";
+    barra.style.setProperty("--proporcao", String(maior > 0 ? item[medida] / maior : 0));
+
+    linha.append(nome, tempo, barra);
     return linha;
   });
 
@@ -398,27 +437,18 @@ const filtroAno = document.getElementById("filtro-ano");
 
 // Monta as opções do filtro com os anos que existem nas escutas
 function atualizarFiltroAno(escutas) {
-  const anos = [
-    ...new Set(escutas.map((e) => (e.data || "").slice(0, 4)).filter(Boolean)),
-  ]
-    .sort()
-    .reverse();
+  const anos = [...new Set(escutas.map((e) => (e.data || "").slice(0, 4)).filter(Boolean))].sort().reverse();
   const selecionado = filtroAno.value;
 
-  filtroAno.replaceChildren(
-    new Option("Todos os anos", "todos"),
-    ...anos.map((ano) => new Option(ano, ano)),
-  );
+  filtroAno.replaceChildren(new Option("Todos os anos", "todos"), ...anos.map((ano) => new Option(ano, ano)));
   filtroAno.value = anos.includes(selecionado) ? selecionado : "todos";
 }
 
-filtroAno.addEventListener("change", () => mostrarWrapped(carregarEscutas()));
+filtroAno.addEventListener("change", () => mostrarWrapped(carregarEscutas(), true));
 
 function escutasDoPeriodo(todasAsEscutas) {
   const ano = filtroAno.value;
-  return ano === "todos"
-    ? todasAsEscutas
-    : todasAsEscutas.filter((e) => (e.data || "").startsWith(ano));
+  return ano === "todos" ? todasAsEscutas : todasAsEscutas.filter((e) => (e.data || "").startsWith(ano));
 }
 
 // ----- Idade de escuta -----
@@ -432,11 +462,7 @@ const campoNascimento = document.getElementById("ano-nascimento");
 function lerAnoNascimento() {
   try {
     const ano = Number(localStorage.getItem(CHAVE_NASCIMENTO));
-    return Number.isInteger(ano) &&
-      ano >= ANO_NASCIMENTO_MIN &&
-      ano <= ANO_ATUAL
-      ? ano
-      : null;
+    return Number.isInteger(ano) && ano >= ANO_NASCIMENTO_MIN && ano <= ANO_ATUAL ? ano : null;
   } catch (erro) {
     return null;
   }
@@ -447,8 +473,7 @@ campoNascimento.value = lerAnoNascimento() || "";
 
 campoNascimento.addEventListener("change", () => {
   const ano = campoNascimento.valueAsNumber;
-  const valido =
-    Number.isInteger(ano) && ano >= ANO_NASCIMENTO_MIN && ano <= ANO_ATUAL;
+  const valido = Number.isInteger(ano) && ano >= ANO_NASCIMENTO_MIN && ano <= ANO_ATUAL;
 
   try {
     if (valido) localStorage.setItem(CHAVE_NASCIMENTO, String(ano));
@@ -461,7 +486,7 @@ campoNascimento.addEventListener("change", () => {
   mostrarWrapped(carregarEscutas());
 });
 
-function mostrarIdadeDeEscuta(wrapped) {
+function mostrarIdadeDeEscuta(wrapped, animar) {
   const numero = document.getElementById("stat-idade");
   const detalhe = document.getElementById("stat-idade-detalhe");
 
@@ -472,11 +497,10 @@ function mostrarIdadeDeEscuta(wrapped) {
   }
 
   const idadeDeEscuta = ANO_ATUAL - (wrapped.anoMedio - IDADE_DO_GOSTO);
-  numero.textContent = `${idadeDeEscuta} anos`;
+  animarNumero(numero, idadeDeEscuta, (valor) => `${Math.round(valor)} anos`, animar);
 
   const nascimento = lerAnoNascimento();
-  let comparacao =
-    "Informe seu ano de nascimento para comparar com a sua idade real.";
+  let comparacao = "Informe seu ano de nascimento para comparar com a sua idade real.";
 
   if (nascimento) {
     const idadeReal = ANO_ATUAL - nascimento;
@@ -494,28 +518,27 @@ function mostrarIdadeDeEscuta(wrapped) {
   detalhe.textContent = `A média das suas músicas é de ${wrapped.anoMedio}. ${comparacao}`;
 }
 
-function mostrarWrapped(todasAsEscutas) {
+function mostrarWrapped(todasAsEscutas, animar = false) {
   const ano = filtroAno.value;
   const escutas = escutasDoPeriodo(todasAsEscutas);
   const wrapped = calcularWrapped(escutas);
   const temDados = wrapped.qtd > 0;
 
-  document.getElementById("stat-horas").textContent = temDados
-    ? formatarHoras(wrapped.totalMin)
-    : "0";
-  document.getElementById("stat-minutos").textContent = Math.round(
-    wrapped.totalMin,
-  ).toLocaleString("pt-BR");
+  animarNumero(document.getElementById("stat-horas"), wrapped.totalMin, temDados ? formatarHoras : () => "0", animar);
+  animarNumero(
+    document.getElementById("stat-minutos"),
+    Math.round(wrapped.totalMin),
+    (valor) => Math.round(valor).toLocaleString("pt-BR"),
+    animar
+  );
 
-  mostrarIdadeDeEscuta(wrapped);
+  mostrarIdadeDeEscuta(wrapped, animar);
 
-  document.getElementById("stat-personalidade").textContent = temDados
-    ? definirPersonalidade(wrapped)
-    : "—";
+  document.getElementById("stat-personalidade").textContent = temDados ? definirPersonalidade(wrapped) : "—";
 
   preencherRanking(document.getElementById("top-artistas"), wrapped.artistas);
   mostrarCorrida(escutas);
-  preencherRanking(document.getElementById("top-musicas"), wrapped.musicas);
+  preencherRanking(document.getElementById("top-musicas"), wrapped.musicas, 5, "vezes");
   preencherRanking(document.getElementById("top-albuns"), wrapped.albuns);
   preencherRanking(document.getElementById("top-generos"), wrapped.generos);
 
@@ -524,11 +547,7 @@ function mostrarWrapped(todasAsEscutas) {
   const totalNaPlaylist = Math.min(wrapped.musicas.length, 100);
   document.getElementById("titulo-playlist").textContent =
     `Suas músicas mais ouvidas${nomePeriodo} · ${totalNaPlaylist} ${totalNaPlaylist === 1 ? "música" : "músicas"}`;
-  preencherRanking(
-    document.getElementById("playlist-lista"),
-    wrapped.musicas,
-    100,
-  );
+  preencherRanking(document.getElementById("playlist-lista"), wrapped.musicas, 100, "vezes");
 }
 
 // ===== Remover escuta =====
@@ -536,22 +555,31 @@ listaEscutas.addEventListener("click", (evento) => {
   const botao = evento.target.closest("button[data-remover]");
   if (!botao) return;
 
+  const item = botao.closest(".faixa");
+  if (item.classList.contains("faixa--saindo")) return; // já está saindo
+
   if (!confirm("Remover esta escuta?")) return;
 
   const id = Number(botao.dataset.remover);
-  salvarEscutas(carregarEscutas().filter((escuta) => escuta.id !== id));
-  mostrarEscutas();
+  const concluir = () => {
+    salvarEscutas(carregarEscutas().filter((escuta) => escuta.id !== id));
+    mostrarEscutas();
+    mostrarToast("Escuta removida");
+  };
+
+  if (semAnimacao()) {
+    concluir();
+  } else {
+    item.classList.add("faixa--saindo");
+    setTimeout(concluir, 260);
+  }
 });
 
 // ===== Backup (exportar e importar JSON) =====
 const msgBackup = document.getElementById("msg-backup");
 
 function montarBackup() {
-  return JSON.stringify(
-    { versao: 1, exportadoEm: hoje(), escutas: carregarEscutas() },
-    null,
-    2,
-  );
+  return JSON.stringify({ versao: 1, exportadoEm: hoje(), escutas: carregarEscutas() }, null, 2);
 }
 
 document.getElementById("btn-exportar").addEventListener("click", () => {
@@ -572,11 +600,39 @@ document.getElementById("btn-exportar").addEventListener("click", () => {
   msgBackup.textContent = `${escutas.length} escutas exportadas.`;
 });
 
+// ----- Apagar todas as escutas (pede confirmação) -----
+const painelApagar = document.getElementById("confirmar-apagar");
+const textoApagar = document.getElementById("texto-confirmar");
+const botaoCancelarApagar = document.getElementById("btn-cancelar-apagar");
+
+document.getElementById("btn-apagar-tudo").addEventListener("click", () => {
+  const total = carregarEscutas().length;
+
+  if (total === 0) {
+    msgBackup.textContent = "Não há escutas para apagar.";
+    return;
+  }
+
+  textoApagar.textContent = `Apagar ${total === 1 ? "a escuta registrada" : `as ${total} escutas registradas`}? Isso não pode ser desfeito. Se quiser guardar uma cópia, exporte um backup antes.`;
+  painelApagar.hidden = false;
+  botaoCancelarApagar.focus(); // o foco começa na opção segura
+});
+
+botaoCancelarApagar.addEventListener("click", () => {
+  painelApagar.hidden = true;
+});
+
+document.getElementById("btn-confirmar-apagar").addEventListener("click", () => {
+  salvarEscutas([]);
+  painelApagar.hidden = true;
+  mostrarEscutas();
+  msgBackup.textContent = "";
+  mostrarToast("Todas as escutas foram apagadas");
+});
+
 const campoArquivo = document.getElementById("arquivo-backup");
 
-document
-  .getElementById("btn-importar")
-  .addEventListener("click", () => campoArquivo.click());
+document.getElementById("btn-importar").addEventListener("click", () => campoArquivo.click());
 
 // Aceita só registros com os campos que o app precisa e copia apenas esses campos
 function limparEscuta(bruta) {
@@ -584,14 +640,8 @@ function limparEscuta(bruta) {
   const numeroOk = (v) => typeof v === "number" && Number.isFinite(v);
 
   if (!bruta || typeof bruta !== "object") return null;
-  if (!numeroOk(bruta.id) || !textoOk(bruta.titulo) || !textoOk(bruta.artista))
-    return null;
-  if (
-    !numeroOk(bruta.ano) ||
-    !numeroOk(bruta.duracaoSeg) ||
-    bruta.duracaoSeg <= 0
-  )
-    return null;
+  if (!numeroOk(bruta.id) || !textoOk(bruta.titulo) || !textoOk(bruta.artista)) return null;
+  if (!numeroOk(bruta.ano) || !numeroOk(bruta.duracaoSeg) || bruta.duracaoSeg <= 0) return null;
   if (!numeroOk(bruta.minutosOuvidos) || bruta.minutosOuvidos <= 0) return null;
 
   return {
@@ -602,10 +652,7 @@ function limparEscuta(bruta) {
     album: textoOk(bruta.album) ? bruta.album : "Sem álbum",
     ano: bruta.ano,
     duracaoSeg: bruta.duracaoSeg,
-    capa:
-      typeof bruta.capa === "string" && bruta.capa.startsWith("https://")
-        ? bruta.capa
-        : "",
+    capa: typeof bruta.capa === "string" && bruta.capa.startsWith("https://") ? bruta.capa : "",
     genero: textoOk(bruta.genero) ? bruta.genero : "Desconhecido",
     completa: Boolean(bruta.completa),
     minutosOuvidos: bruta.minutosOuvidos,
@@ -624,44 +671,22 @@ campoArquivo.addEventListener("change", async () => {
 
     const atuais = carregarEscutas();
     const idsAtuais = new Set(atuais.map((escuta) => escuta.id));
-    const novas = lista
-      .map(limparEscuta)
-      .filter((escuta) => escuta && !idsAtuais.has(escuta.id));
+    const novas = lista.map(limparEscuta).filter((escuta) => escuta && !idsAtuais.has(escuta.id));
 
     salvarEscutas([...atuais, ...novas]);
     mostrarEscutas();
     msgBackup.textContent = `${novas.length} escutas importadas. ${lista.length - novas.length} ignoradas (repetidas ou inválidas).`;
   } catch (erro) {
     console.error(erro);
-    msgBackup.textContent =
-      "Não foi possível importar. Use um arquivo exportado por este app.";
+    msgBackup.textContent = "Não foi possível importar. Use um arquivo exportado por este app.";
   } finally {
     campoArquivo.value = ""; // permite escolher o mesmo arquivo de novo
   }
 });
 
 // ===== Corrida dos artistas =====
-const NOMES_MESES = [
-  "jan",
-  "fev",
-  "mar",
-  "abr",
-  "mai",
-  "jun",
-  "jul",
-  "ago",
-  "set",
-  "out",
-  "nov",
-  "dez",
-];
-const CORES_CORRIDA = [
-  "var(--magenta)",
-  "var(--ciano)",
-  "var(--amarelo)",
-  "#b18cff",
-  "#ff9a3c",
-];
+const NOMES_MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+const CORES_CORRIDA = ["var(--magenta)", "var(--ciano)", "var(--amarelo)", "#b18cff", "#ff9a3c"];
 const NS_SVG = "http://www.w3.org/2000/svg";
 
 // Lista todos os meses entre a primeira e a última escuta (inclusive meses sem escuta): "2026-01", "2026-02"...
@@ -696,17 +721,11 @@ function rotuloMes(mes) {
 // posição null = ainda não tinha ouvido esse artista.
 function calcularCorrida(escutas) {
   const meses = listarMeses(escutas);
-  const nomes = somarPor(
-    escutas,
-    (e) => e.artista,
-    (e) => e.artista,
-  )
+  const nomes = somarPor(escutas, (e) => e.artista, (e) => e.artista)
     .slice(0, 5)
     .map((artista) => artista.rotulo);
 
-  const minutosPorMes = new Map(
-    nomes.map((nome) => [nome, meses.map(() => 0)]),
-  );
+  const minutosPorMes = new Map(nomes.map((nome) => [nome, meses.map(() => 0)]));
   for (const escuta of escutas) {
     const linha = minutosPorMes.get(escuta.artista);
     const indice = meses.indexOf((escuta.data || "").slice(0, 7));
@@ -729,16 +748,12 @@ function calcularCorrida(escutas) {
       });
   });
 
-  return {
-    meses,
-    artistas: nomes.map((nome, i) => ({ nome, posicoes: posicoes[i] })),
-  };
+  return { meses, artistas: nomes.map((nome, i) => ({ nome, posicoes: posicoes[i] })) };
 }
 
 function criarSvg(tag, atributos = {}) {
   const elemento = document.createElementNS(NS_SVG, tag);
-  for (const [chave, valor] of Object.entries(atributos))
-    elemento.setAttribute(chave, valor);
+  for (const [chave, valor] of Object.entries(atributos)) elemento.setAttribute(chave, valor);
   return elemento;
 }
 
@@ -757,13 +772,7 @@ function desenharCorrida(corrida) {
   const ultimo = n - 1;
   const lider = artistas.find((a) => a.posicoes[ultimo] === 1);
 
-  const grafico = criarSvg("svg", {
-    viewBox: `0 0 ${largura} ${altura}`,
-    width: largura,
-    height: altura,
-    role: "img",
-    "aria-labelledby": "corrida-titulo corrida-desc",
-  });
+  const grafico = criarSvg("svg", { viewBox: `0 0 ${largura} ${altura}`, width: largura, height: altura, role: "img", "aria-labelledby": "corrida-titulo corrida-desc" });
   grafico.classList.add("corrida__svg");
 
   const titulo = criarSvg("title", { id: "corrida-titulo" });
@@ -774,18 +783,9 @@ function desenharCorrida(corrida) {
 
   // linhas de grade e posições (1º a 5º)
   for (let posicao = 1; posicao <= 5; posicao++) {
-    const grade = criarSvg("line", {
-      x1: esquerda,
-      x2: largura - 8,
-      y1: y(posicao),
-      y2: y(posicao),
-    });
+    const grade = criarSvg("line", { x1: esquerda, x2: largura - 8, y1: y(posicao), y2: y(posicao) });
     grade.classList.add("corrida__grade");
-    const rotulo = criarSvg("text", {
-      x: esquerda - 8,
-      y: y(posicao) + 4,
-      "text-anchor": "end",
-    });
+    const rotulo = criarSvg("text", { x: esquerda - 8, y: y(posicao) + 4, "text-anchor": "end" });
     rotulo.classList.add("corrida__texto");
     rotulo.textContent = `${posicao}º`;
     grafico.append(grade, rotulo);
@@ -793,11 +793,7 @@ function desenharCorrida(corrida) {
 
   // meses
   meses.forEach((mes, m) => {
-    const rotulo = criarSvg("text", {
-      x: x(m),
-      y: y(5) + 30,
-      "text-anchor": "middle",
-    });
+    const rotulo = criarSvg("text", { x: x(m), y: y(5) + 30, "text-anchor": "middle" });
     rotulo.classList.add("corrida__texto");
     rotulo.textContent = rotuloMes(mes);
     grafico.append(rotulo);
@@ -807,9 +803,7 @@ function desenharCorrida(corrida) {
   artistas.forEach((artista, i) => {
     const cor = CORES_CORRIDA[i];
     const pontos = artista.posicoes
-      .map((posicao, m) =>
-        posicao === null ? null : { x: x(m), y: y(posicao) },
-      )
+      .map((posicao, m) => (posicao === null ? null : { x: x(m), y: y(posicao) }))
       .filter(Boolean);
 
     let caminho = `M ${pontos[0].x} ${pontos[0].y}`;
@@ -826,12 +820,7 @@ function desenharCorrida(corrida) {
     grafico.append(linha);
 
     for (const ponto of pontos) {
-      const marcador = criarSvg("rect", {
-        x: ponto.x - 6,
-        y: ponto.y - 6,
-        width: 12,
-        height: 12,
-      });
+      const marcador = criarSvg("rect", { x: ponto.x - 6, y: ponto.y - 6, width: 12, height: 12 });
       marcador.classList.add("corrida__marcador");
       marcador.style.fill = cor;
       grafico.append(marcador);
@@ -868,18 +857,13 @@ function criarTabelaCorrida(corrida) {
   tabela.className = "corrida__tabela";
 
   const cabecalho = document.createElement("tr");
-  cabecalho.append(
-    criarElemento("th", "", "Artista"),
-    ...corrida.meses.map((mes) => criarElemento("th", "", rotuloMes(mes))),
-  );
+  cabecalho.append(criarElemento("th", "", "Artista"), ...corrida.meses.map((mes) => criarElemento("th", "", rotuloMes(mes))));
 
   const corpo = corrida.artistas.map((artista) => {
     const linha = document.createElement("tr");
     linha.append(
       criarElemento("th", "", artista.nome),
-      ...artista.posicoes.map((posicao) =>
-        criarElemento("td", "", posicao === null ? "—" : `${posicao}º`),
-      ),
+      ...artista.posicoes.map((posicao) => criarElemento("td", "", posicao === null ? "—" : `${posicao}º`))
     );
     return linha;
   });
@@ -887,10 +871,7 @@ function criarTabelaCorrida(corrida) {
   tabela.append(cabecalho, ...corpo);
 
   const detalhes = criarElemento("details", "corrida__detalhes");
-  detalhes.append(
-    criarElemento("summary", "", "Ver em tabela"),
-    criarElemento("div", "corrida__rolagem", ""),
-  );
+  detalhes.append(criarElemento("summary", "", "Ver em tabela"), criarElemento("div", "corrida__rolagem", ""));
   detalhes.querySelector("div").append(tabela);
   return detalhes;
 }
@@ -901,20 +882,12 @@ function mostrarCorrida(escutas) {
 
   if (corrida.artistas.length < 2 || corrida.meses.length < 2) {
     area.replaceChildren(
-      criarElemento(
-        "p",
-        "vazio",
-        "Registre escutas de pelo menos 2 artistas, em pelo menos 2 meses diferentes, para ver a corrida.",
-      ),
+      criarElemento("p", "vazio", "Registre escutas de pelo menos 2 artistas, em pelo menos 2 meses diferentes, para ver a corrida.")
     );
     return;
   }
 
-  area.replaceChildren(
-    desenharCorrida(corrida),
-    criarLegendaCorrida(corrida),
-    criarTabelaCorrida(corrida),
-  );
+  area.replaceChildren(desenharCorrida(corrida), criarLegendaCorrida(corrida), criarTabelaCorrida(corrida));
 }
 
 // ===== Quiz =====
@@ -952,26 +925,10 @@ function gerarPerguntas(wrapped, periodo) {
   const mesmaMusica = (a, b) => a.vezes === b.vezes && mesmosMinutos(a, b);
 
   return [
-    criarPergunta(
-      `Qual foi a sua música mais ouvida${periodo}?`,
-      wrapped.musicas,
-      mesmaMusica,
-    ),
-    criarPergunta(
-      `Qual artista você mais ouviu${periodo}?`,
-      wrapped.artistas,
-      mesmosMinutos,
-    ),
-    criarPergunta(
-      `Qual álbum você mais ouviu${periodo}?`,
-      wrapped.albuns,
-      mesmosMinutos,
-    ),
-    criarPergunta(
-      `Qual gênero mais marcou o seu som${periodo}?`,
-      wrapped.generos,
-      mesmosMinutos,
-    ),
+    criarPergunta(`Qual foi a sua música mais ouvida${periodo}?`, wrapped.musicas, mesmaMusica),
+    criarPergunta(`Qual artista você mais ouviu${periodo}?`, wrapped.artistas, mesmosMinutos),
+    criarPergunta(`Qual álbum você mais ouviu${periodo}?`, wrapped.albuns, mesmosMinutos),
+    criarPergunta(`Qual gênero mais marcou o seu som${periodo}?`, wrapped.generos, mesmosMinutos),
   ].filter(Boolean);
 }
 
@@ -991,36 +948,19 @@ function mostrarInicioQuiz() {
 
   if (perguntas.length === 0) {
     cartao.append(
-      criarElemento(
-        "p",
-        "quiz__texto",
-        "Registre pelo menos 2 músicas diferentes para jogar. Empates no primeiro lugar também impedem a pergunta.",
-      ),
+      criarElemento("p", "quiz__texto", "Registre pelo menos 2 músicas diferentes para jogar. Empates no primeiro lugar também impedem a pergunta.")
     );
   } else {
-    const periodo =
-      filtroAno.value === "todos" ? "todos os anos" : filtroAno.value;
-    const botao = criarElemento(
-      "button",
-      "botao botao--amarelo",
-      "Começar quiz",
-    );
+    const periodo = filtroAno.value === "todos" ? "todos os anos" : filtroAno.value;
+    const botao = criarElemento("button", "botao botao--amarelo", "Começar quiz");
     botao.type = "button";
     botao.id = "quiz-comecar";
     botao.addEventListener("click", iniciarQuiz);
 
     cartao.append(
-      criarElemento(
-        "p",
-        "quiz__texto",
-        `Você sabe o que mais ouviu? Responda ${perguntas.length} perguntas sobre o seu período.`,
-      ),
-      criarElemento(
-        "p",
-        "quiz__nota",
-        `Período: ${periodo}. Para mudar, use o filtro na aba Wrapped.`,
-      ),
-      botao,
+      criarElemento("p", "quiz__texto", `Você sabe o que mais ouviu? Responda ${perguntas.length} perguntas sobre o seu período.`),
+      criarElemento("p", "quiz__nota", `Período: ${periodo}. Para mudar, use o filtro na aba Wrapped.`),
+      botao
     );
   }
 
@@ -1053,9 +993,7 @@ function mostrarPergunta() {
   for (const opcao of pergunta.opcoes) {
     const botao = criarElemento("button", "botao botao--opcao", opcao.rotulo);
     botao.type = "button";
-    botao.addEventListener("click", () =>
-      responder(pergunta, opcao, botao, botoes, cartao),
-    );
+    botao.addEventListener("click", () => responder(pergunta, opcao, botao, botoes, cartao));
     botoes.push(botao);
 
     const linha = document.createElement("li");
@@ -1064,13 +1002,9 @@ function mostrarPergunta() {
   }
 
   cartao.append(
-    criarElemento(
-      "p",
-      "quiz__progresso",
-      `Pergunta ${quiz.indice + 1} de ${quiz.perguntas.length}`,
-    ),
+    criarElemento("p", "quiz__progresso", `Pergunta ${quiz.indice + 1} de ${quiz.perguntas.length}`),
     titulo,
-    lista,
+    lista
   );
   areaQuiz.replaceChildren(cartao);
   titulo.focus({ preventScroll: true });
@@ -1095,18 +1029,12 @@ function responder(pergunta, opcao, botaoEscolhido, botoes, cartao) {
   const feedback = criarElemento(
     "p",
     "quiz__feedback",
-    acertou
-      ? `Certo! ${descreverItem(pergunta.correta)}`
-      : `Quase! Era ${descreverItem(pergunta.correta)}`,
+    acertou ? `Certo! ${descreverItem(pergunta.correta)}` : `Quase! Era ${descreverItem(pergunta.correta)}`
   );
   feedback.setAttribute("role", "status");
 
   const ultima = quiz.indice === quiz.perguntas.length - 1;
-  const proxima = criarElemento(
-    "button",
-    "botao botao--escuro",
-    ultima ? "Ver resultado" : "Próxima pergunta",
-  );
+  const proxima = criarElemento("button", "botao botao--escuro", ultima ? "Ver resultado" : "Próxima pergunta");
   proxima.type = "button";
   proxima.id = "quiz-proxima";
   proxima.addEventListener("click", () => {
@@ -1126,11 +1054,7 @@ function mostrarResultadoQuiz() {
   const total = quiz.perguntas.length;
   const cartao = criarElemento("div", "quiz__cartao");
 
-  const botao = criarElemento(
-    "button",
-    "botao botao--amarelo",
-    "Jogar de novo",
-  );
+  const botao = criarElemento("button", "botao botao--amarelo", "Jogar de novo");
   botao.type = "button";
   botao.id = "quiz-de-novo";
   botao.addEventListener("click", iniciarQuiz);
@@ -1138,14 +1062,8 @@ function mostrarResultadoQuiz() {
   cartao.append(
     criarElemento("p", "quiz__progresso", "Resultado"),
     criarElemento("p", "quiz__placar", `${quiz.acertos} de ${total}`),
-    criarElemento(
-      "p",
-      "quiz__texto",
-      quiz.acertos === total
-        ? "Você conhece bem o seu som!"
-        : "Dá para melhorar. Que tal ver o Wrapped e tentar de novo?",
-    ),
-    botao,
+    criarElemento("p", "quiz__texto", quiz.acertos === total ? "Você conhece bem o seu som!" : "Dá para melhorar. Que tal ver o Wrapped e tentar de novo?"),
+    botao
   );
   areaQuiz.replaceChildren(cartao);
 }
@@ -1153,8 +1071,10 @@ function mostrarResultadoQuiz() {
 // Ao abrir a aba do quiz, volta para a tela inicial (os dados podem ter mudado)
 window.addEventListener("hashchange", () => {
   if (location.hash === "#quiz") mostrarInicioQuiz();
+  if (location.hash === "#wrapped") mostrarWrapped(carregarEscutas(), true);
 });
 
 // ===== Ao abrir a página =====
 mostrarEscutas();
 mostrarInicioQuiz();
+if (location.hash === "#wrapped") mostrarWrapped(carregarEscutas(), true);
