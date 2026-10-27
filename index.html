@@ -12,6 +12,10 @@
 </head>
 <body>
 
+  <div class="fundo" aria-hidden="true">
+    <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+  </div>
+
   <header class="topo">
     <div class="equalizador" aria-hidden="true">
       <span></span><span></span><span></span><span></span><span></span>
@@ -36,20 +40,74 @@
       </form>
 
       <!-- O JavaScript vai preencher esta lista com os resultados da busca -->
-      <ul class="lista" id="resultados" aria-live="polite"></ul>
-      <p class="vazio" id="msg-busca">Busque uma música para registrar quanto você ouviu.</p>
+      <div class="resultados-area">
+        <div class="selecao" id="barra-selecao" hidden>
+          <div class="selecao__linha">
+            <label class="selecao__todas">
+              <input type="checkbox" id="selecionar-todas">
+              <span class="marca" aria-hidden="true"></span>
+              Selecionar todos os resultados
+            </label>
+            <span class="selecao__contagem" id="contagem-selecao">0 selecionadas</span>
+          </div>
+          <p class="selecao__nota">A seleção continua quando você faz outra busca.</p>
+
+          <details class="selecao__detalhes" id="detalhes-selecionadas" hidden>
+            <summary id="resumo-selecionadas">Ver selecionadas (0)</summary>
+            <ul class="selecao__lista" id="lista-selecionadas"></ul>
+          </details>
+
+          <div class="selecao__linha">
+            <label class="selecao__data">
+              Data em que ouviu
+              <input type="date" id="data-selecao">
+            </label>
+            <div class="selecao__botoes">
+              <button class="botao botao--neutro" type="button" id="btn-limpar-selecao" disabled>Limpar seleção</button>
+              <button class="botao botao--amarelo" type="button" id="btn-registrar-selecionadas" disabled>Ouvi completas</button>
+            </div>
+          </div>
+          <p class="selecao__aviso" id="aviso-selecao" role="alert"></p>
+        </div>
+
+        <ul class="lista" id="resultados" aria-live="polite"></ul>
+        <p class="vazio" id="msg-busca">Busque uma música para registrar quanto você ouviu.</p>
+      </div>
 
       <h2 class="tela__titulo tela__titulo--secundario">Suas escutas</h2>
-      <ul class="lista" id="escutas"></ul>
-      <p class="vazio" id="msg-escutas">Nenhuma escuta registrada ainda.</p>
+      <div class="escutas-area">
+        <div class="selecao selecao--remocao" id="barra-remocao" hidden>
+          <div class="selecao__linha">
+            <label class="selecao__todas">
+              <input type="checkbox" id="selecionar-todas-escutas">
+              <span class="marca" aria-hidden="true"></span>
+              Selecionar todas
+            </label>
+            <span class="selecao__contagem" id="contagem-remocao">0 selecionadas</span>
+            <button class="botao botao--perigo" type="button" id="btn-remover-selecionadas" disabled>Remover selecionadas</button>
+          </div>
+        </div>
+
+        <ul class="lista" id="escutas"></ul>
+        <p class="vazio" id="msg-escutas">Nenhuma escuta registrada ainda.</p>
+      </div>
 
       <div class="backup">
-        <h3 class="backup__titulo">Backup</h3>
+        <h3 class="backup__titulo">Backup e limpeza</h3>
         <p class="backup__texto">Seus dados ficam só neste navegador. Exporte um arquivo para não perder nada.</p>
         <div class="backup__botoes">
           <button class="botao botao--amarelo" type="button" id="btn-exportar">Exportar backup</button>
           <button class="botao botao--escuro" type="button" id="btn-importar">Importar backup</button>
           <input type="file" id="arquivo-backup" accept="application/json,.json" hidden>
+          <button class="botao botao--perigo" type="button" id="btn-apagar-tudo">Apagar todas</button>
+        </div>
+
+        <div class="backup__confirmar" id="confirmar-apagar" role="group" aria-labelledby="texto-confirmar" hidden>
+          <p id="texto-confirmar"></p>
+          <div class="backup__botoes">
+            <button class="botao botao--cheio" type="button" id="btn-confirmar-apagar">Sim, apagar tudo</button>
+            <button class="botao botao--neutro" type="button" id="btn-cancelar-apagar">Cancelar</button>
+          </div>
         </div>
         <p class="backup__aviso" id="msg-backup" role="status"></p>
       </div>
@@ -83,7 +141,7 @@
           <p class="bloco__numero bloco__numero--medio" id="stat-personalidade">—</p>
         </article>
 
-        <article class="bloco bloco--idade bloco--largo">
+        <article class="bloco bloco--idade">
           <h3 class="bloco__titulo">Idade de escuta</h3>
           <p class="bloco__numero bloco__numero--medio" id="stat-idade">—</p>
           <p class="bloco__detalhe" id="stat-idade-detalhe"></p>
@@ -94,33 +152,33 @@
           <p class="bloco__nota">Estimativa pela época das suas músicas. Não é comparada com outras pessoas.</p>
         </article>
 
-        <article class="bloco bloco--largo">
+        <article class="bloco bloco--artistas">
           <h3 class="bloco__titulo">Top artistas</h3>
           <ol class="ranking" id="top-artistas"></ol>
         </article>
 
-        <article class="bloco bloco--largo">
+        <article class="bloco bloco--musicas">
+          <h3 class="bloco__titulo">Top músicas</h3>
+          <ol class="ranking" id="top-musicas"></ol>
+        </article>
+
+        <article class="bloco bloco--corrida">
           <h3 class="bloco__titulo">Corrida dos artistas</h3>
           <p class="bloco__nota">Posição acumulada mês a mês entre os seus 5 artistas favoritos. O 1º lugar fica no topo.</p>
           <div id="corrida-area"></div>
         </article>
 
-        <article class="bloco bloco--largo">
-          <h3 class="bloco__titulo">Top músicas</h3>
-          <ol class="ranking" id="top-musicas"></ol>
-        </article>
-
-        <article class="bloco bloco--largo">
+        <article class="bloco bloco--albuns">
           <h3 class="bloco__titulo">Álbuns mais ouvidos</h3>
           <ol class="ranking" id="top-albuns"></ol>
         </article>
 
-        <article class="bloco bloco--largo">
+        <article class="bloco bloco--generos">
           <h3 class="bloco__titulo">Principais gêneros</h3>
           <ol class="ranking" id="top-generos"></ol>
         </article>
 
-        <details class="bloco bloco--largo playlist">
+        <details class="bloco bloco--playlist playlist">
           <summary class="bloco__titulo playlist__titulo" id="titulo-playlist">Suas músicas mais ouvidas</summary>
           <ol class="ranking" id="playlist-lista"></ol>
         </details>
@@ -136,6 +194,8 @@
 
   </main>
 
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
   <nav class="menu" aria-label="Navegação principal">
     <a class="menu__link" href="#registrar">Registrar</a>
     <a class="menu__link" href="#wrapped">Wrapped</a>
@@ -144,7 +204,11 @@
 
   <!-- Molde de um item de música. O JavaScript copia este molde para cada resultado. -->
   <template id="tpl-faixa">
-    <li class="faixa">
+    <li class="faixa faixa--selecionavel">
+      <label class="faixa__selecionar">
+        <input type="checkbox" aria-label="Selecionar música">
+        <span class="marca" aria-hidden="true"></span>
+      </label>
       <img class="faixa__capa" alt="">
       <div class="faixa__info">
         <strong class="faixa__titulo"></strong>
