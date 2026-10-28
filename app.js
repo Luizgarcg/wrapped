@@ -103,10 +103,9 @@ const URL_API = "https://itunes.apple.com/search";
 
 // Função na Vercel que busca no iTunes pelo servidor (o iPhone bloqueava o acesso direto).
 // Na Vercel usa o próprio endereço; no GitHub Pages usa o endereço completo da Vercel.
-// TROQUE "SEU-PROJETO" pelo nome do seu projeto na Vercel.
 const URL_PROXY = location.hostname.endsWith("vercel.app")
   ? "/api/buscar"
-  : "https://SEU-PROJETO.vercel.app/api/buscar";
+  : "https://wrapped-chi-nine.vercel.app/api/buscar";
 
 async function pedirJson(url) {
   const resposta = await fetch(url);
