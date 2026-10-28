@@ -101,37 +101,19 @@ function animarNumero(elemento, fim, formatar, animar) {
 // ===== API do iTunes =====
 const URL_API = "https://itunes.apple.com/search";
 
-// Plano B: carrega a API como <script> (JSONP), sem depender do fetch/CORS
-function buscarViaJsonp(url) {
-  return new Promise((resolve, reject) => {
-    const nome = "cbItunes" + Date.now();
-    const script = document.createElement("script");
-    let timer;
+// Função na Vercel que busca no iTunes pelo servidor (o iPhone bloqueava o acesso direto).
+// Na Vercel usa o próprio endereço; no GitHub Pages usa o endereço completo da Vercel.
+// TROQUE "SEU-PROJETO" pelo nome do seu projeto na Vercel.
+const URL_PROXY = location.hostname.endsWith("vercel.app")
+  ? "/api/buscar"
+  : "https://SEU-PROJETO.vercel.app/api/buscar";
 
-    const limpar = () => {
-      delete window[nome];
-      script.remove();
-      clearTimeout(timer);
-    };
-
-    timer = setTimeout(() => {
-      limpar();
-      reject(new Error("tempo esgotado"));
-    }, 10000);
-
-    window[nome] = (dados) => {
-      limpar();
-      resolve(dados);
-    };
-
-    script.onerror = () => {
-      limpar();
-      reject(new Error("falha ao carregar o script"));
-    };
-
-    script.src = `${url}&callback=${nome}`;
-    document.head.append(script);
-  });
+async function pedirJson(url) {
+  const resposta = await fetch(url);
+  if (!resposta.ok) {
+    throw new Error(`Erro na API: ${resposta.status}`);
+  }
+  return resposta.json();
 }
 
 async function buscarMusicas(termo) {
@@ -142,23 +124,20 @@ async function buscarMusicas(termo) {
     limit: 10,
     country: "BR",
   });
-  const url = `${URL_API}?${params}`;
 
   let dados;
   try {
-    const resposta = await fetch(url);
-    if (!resposta.ok) {
-      throw new Error(`Erro na API: ${resposta.status}`);
-    }
-    dados = await resposta.json();
-  } catch (erroFetch) {
-    console.warn("fetch falhou, tentando JSONP:", erroFetch);
+    // 1º tenta pelo servidor próprio (funciona no iPhone)
+    dados = await pedirJson(`${URL_PROXY}?term=${encodeURIComponent(termo)}`);
+  } catch (erroProxy) {
+    console.warn("proxy falhou, tentando direto:", erroProxy);
     try {
-      dados = await buscarViaJsonp(url);
-    } catch (erroJsonp) {
+      // 2º tenta direto no iTunes
+      dados = await pedirJson(`${URL_API}?${params}`);
+    } catch (erroDireto) {
       // junta os dois erros para aparecer na tela (diagnóstico)
       throw new Error(
-        `fetch: ${erroFetch.message} | jsonp: ${erroJsonp.message}`,
+        `proxy: ${erroProxy.message} | direto: ${erroDireto.message}`,
       );
     }
   }
