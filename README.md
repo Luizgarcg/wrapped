@@ -74,19 +74,13 @@ As perguntas são geradas **com os seus próprios dados**: qual foi a sua músic
 - **HTML, CSS e JavaScript puro**, sem frameworks
 - **API de busca do iTunes** para achar as músicas, capas e durações
 - **localStorage** para guardar tudo no seu navegador
-- **Função serverless na Vercel** para a busca funcionar também no iPhone
-
-### 📱 A história da pasta `api`
-
-No iPhone, o navegador bloqueava o acesso direto do site à API do iTunes, enquanto no PC e no Android tudo funcionava. A solução foi criar uma pequena função na Vercel (`api/buscar.js`): o site pergunta para ela, ela pergunta para o iTunes e devolve a resposta. Resultado: o app funciona em qualquer aparelho.
+- **Função serverless na Vercel** (pasta `api`) que faz a busca no iTunes pelo servidor, para o site funcionar em todos os aparelhos, inclusive no iPhone
 
 ---
 
 ## 🤖 Como foi feito
 
-Esse projeto foi feito com vibe coding, usando **Gemini** e **Claude**. Eu explicava em português como queria cada parte (a busca, o wrapped, o quiz, a versão em inglês, as cores) e as IAs escreviam o código. Eu testava, via o que não estava do jeito que eu queria e pedia ajuste, até ficar como eu imaginei.
-
-O que mais deu trabalho foi o iPhone: a busca funcionava no PC e no Android, mas no meu celular não. Fui testando, levei de volta o erro que aparecia na tela e a solução foi a função da Vercel que está na pasta `api`.
+Esse projeto usou vibe coding, com **Gemini** e **Claude**, mas não foi só isso. Eu explicava em português como queria cada parte (a busca, o wrapped, o quiz, a versão em inglês) e as IAs escreviam uma base de código. Em cima dela eu apliquei o que sei de **HTML, CSS e JavaScript**: testei, ajustei o que não estava do jeito que eu queria e personalizei o **CSS** por conta própria, com as cores, as fontes e o visual.
 
 ---
 
