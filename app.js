@@ -49,13 +49,13 @@ const semAnimacao = () =>
 const toast = document.getElementById("toast");
 let temporizadorToast;
 
-function mostrarToast(texto) {
+function mostrarToast(texto, duracao = 2600) {
   toast.textContent = texto;
   toast.classList.add("toast--visivel");
   clearTimeout(temporizadorToast);
   temporizadorToast = setTimeout(
     () => toast.classList.remove("toast--visivel"),
-    2600,
+    duracao,
   );
 }
 
@@ -101,6 +101,39 @@ function animarNumero(elemento, fim, formatar, animar) {
 // ===== API do iTunes =====
 const URL_API = "https://itunes.apple.com/search";
 
+// Plano B: carrega a API como <script> (JSONP), sem depender do fetch/CORS
+function buscarViaJsonp(url) {
+  return new Promise((resolve, reject) => {
+    const nome = "cbItunes" + Date.now();
+    const script = document.createElement("script");
+    let timer;
+
+    const limpar = () => {
+      delete window[nome];
+      script.remove();
+      clearTimeout(timer);
+    };
+
+    timer = setTimeout(() => {
+      limpar();
+      reject(new Error("tempo esgotado"));
+    }, 10000);
+
+    window[nome] = (dados) => {
+      limpar();
+      resolve(dados);
+    };
+
+    script.onerror = () => {
+      limpar();
+      reject(new Error("falha ao carregar o script"));
+    };
+
+    script.src = `${url}&callback=${nome}`;
+    document.head.append(script);
+  });
+}
+
 async function buscarMusicas(termo) {
   const params = new URLSearchParams({
     term: termo,
@@ -109,13 +142,26 @@ async function buscarMusicas(termo) {
     limit: 10,
     country: "BR",
   });
+  const url = `${URL_API}?${params}`;
 
-  const resposta = await fetch(`${URL_API}?${params}`);
-  if (!resposta.ok) {
-    throw new Error(`Erro na API: ${resposta.status}`);
+  let dados;
+  try {
+    const resposta = await fetch(url);
+    if (!resposta.ok) {
+      throw new Error(`Erro na API: ${resposta.status}`);
+    }
+    dados = await resposta.json();
+  } catch (erroFetch) {
+    console.warn("fetch falhou, tentando JSONP:", erroFetch);
+    try {
+      dados = await buscarViaJsonp(url);
+    } catch (erroJsonp) {
+      // junta os dois erros para aparecer na tela (diagnóstico)
+      throw new Error(
+        `fetch: ${erroFetch.message} | jsonp: ${erroJsonp.message}`,
+      );
+    }
   }
-
-  const dados = await resposta.json();
 
   return dados.results
     .filter((item) => item.trackTimeMillis) // sem duração não dá para calcular as horas
@@ -204,6 +250,7 @@ formBusca.addEventListener("submit", async (evento) => {
     }
   } catch (erro) {
     console.error(erro);
+    mostrarToast(String(erro), 12000); // TEMPORÁRIO: mostra o erro real no celular
     listaResultados.replaceChildren();
     atualizarSelecao();
     definir(msgBusca, "busca.erro");
