@@ -7,7 +7,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -17,25 +17,29 @@
   </div>
 
   <header class="topo">
+    <div class="idioma" role="group" data-i18n-aria="idioma.grupo" aria-label="Idioma">
+      <button type="button" class="idioma__btn" data-idioma="pt" lang="pt-BR" aria-pressed="true">PT</button>
+      <button type="button" class="idioma__btn" data-idioma="en" lang="en" aria-pressed="false">EN</button>
+    </div>
     <div class="equalizador" aria-hidden="true">
       <span></span><span></span><span></span><span></span><span></span>
     </div>
-    <h1 class="topo__titulo">Meu Wrapped</h1>
-    <p class="topo__texto">Registre o que você ouve e veja seu ano em música.</p>
+    <h1 class="topo__titulo" data-i18n="titulo">Meu Wrapped</h1>
+    <p class="topo__texto" data-i18n="topo.texto">Registre o que você ouve e veja seu ano em música.</p>
   </header>
 
   <main>
 
     <!-- TELA 1: registrar músicas -->
     <section class="tela" id="registrar" aria-labelledby="titulo-registrar">
-      <h2 id="titulo-registrar" class="tela__titulo">O que você ouviu?</h2>
+      <h2 id="titulo-registrar" class="tela__titulo" data-i18n="registrar.titulo">O que você ouviu?</h2>
 
       <form class="busca" id="form-busca" role="search">
-        <label class="busca__rotulo" for="campo-busca">Buscar música ou artista</label>
+        <label class="busca__rotulo" for="campo-busca" data-i18n="busca.rotulo">Buscar música ou artista</label>
         <div class="busca__linha">
           <input class="busca__campo" id="campo-busca" type="search"
-                 placeholder="Ex.: Blank Space" autocomplete="off" required>
-          <button class="botao botao--escuro" type="submit">Buscar</button>
+                 placeholder="Ex.: Blank Space" data-i18n-placeholder="busca.placeholder" autocomplete="off" required>
+          <button class="botao botao--escuro" type="submit" data-i18n="busca.botao">Buscar</button>
         </div>
       </form>
 
@@ -46,11 +50,11 @@
             <label class="selecao__todas">
               <input type="checkbox" id="selecionar-todas">
               <span class="marca" aria-hidden="true"></span>
-              Selecionar todos os resultados
+              <span data-i18n="sel.todos">Selecionar todos os resultados</span>
             </label>
             <span class="selecao__contagem" id="contagem-selecao">0 selecionadas</span>
           </div>
-          <p class="selecao__nota">A seleção continua quando você faz outra busca.</p>
+          <p class="selecao__nota" data-i18n="sel.nota">A seleção continua quando você faz outra busca.</p>
 
           <details class="selecao__detalhes" id="detalhes-selecionadas" hidden>
             <summary id="resumo-selecionadas">Ver selecionadas (0)</summary>
@@ -59,54 +63,54 @@
 
           <div class="selecao__linha">
             <label class="selecao__data">
-              Data em que ouviu
+              <span data-i18n="sel.data">Data em que ouviu</span>
               <input type="date" id="data-selecao">
             </label>
             <div class="selecao__botoes">
-              <button class="botao botao--neutro" type="button" id="btn-limpar-selecao" disabled>Limpar seleção</button>
-              <button class="botao botao--amarelo" type="button" id="btn-registrar-selecionadas" disabled>Ouvi completas</button>
+              <button class="botao botao--neutro" type="button" id="btn-limpar-selecao" data-i18n="sel.limpar" disabled>Limpar seleção</button>
+              <button class="botao botao--amarelo" type="button" id="btn-registrar-selecionadas" data-i18n="sel.completas" disabled>Ouvi completas</button>
             </div>
           </div>
           <p class="selecao__aviso" id="aviso-selecao" role="alert"></p>
         </div>
 
         <ul class="lista" id="resultados" aria-live="polite"></ul>
-        <p class="vazio" id="msg-busca">Busque uma música para registrar quanto você ouviu.</p>
+        <p class="vazio" id="msg-busca" data-i18n="busca.vazio">Busque uma música para registrar quanto você ouviu.</p>
       </div>
 
-      <h2 class="tela__titulo tela__titulo--secundario">Suas escutas</h2>
+      <h2 class="tela__titulo tela__titulo--secundario" data-i18n="escutas.titulo">Suas escutas</h2>
       <div class="escutas-area">
         <div class="selecao selecao--remocao" id="barra-remocao" hidden>
           <div class="selecao__linha">
             <label class="selecao__todas">
               <input type="checkbox" id="selecionar-todas-escutas">
               <span class="marca" aria-hidden="true"></span>
-              Selecionar todas
+              <span data-i18n="escutas.todas">Selecionar todas</span>
             </label>
             <span class="selecao__contagem" id="contagem-remocao">0 selecionadas</span>
-            <button class="botao botao--perigo" type="button" id="btn-remover-selecionadas" disabled>Remover selecionadas</button>
+            <button class="botao botao--perigo" type="button" id="btn-remover-selecionadas" data-i18n="escutas.remover" disabled>Remover selecionadas</button>
           </div>
         </div>
 
         <ul class="lista" id="escutas"></ul>
-        <p class="vazio" id="msg-escutas">Nenhuma escuta registrada ainda.</p>
+        <p class="vazio" id="msg-escutas" data-i18n="escutas.vazio">Nenhuma escuta registrada ainda.</p>
       </div>
 
       <div class="backup">
-        <h3 class="backup__titulo">Backup e limpeza</h3>
-        <p class="backup__texto">Seus dados ficam só neste navegador. Exporte um arquivo para não perder nada.</p>
+        <h3 class="backup__titulo" data-i18n="backup.titulo">Backup e limpeza</h3>
+        <p class="backup__texto" data-i18n="backup.texto">Seus dados ficam só neste navegador. Exporte um arquivo para não perder nada.</p>
         <div class="backup__botoes">
-          <button class="botao botao--amarelo" type="button" id="btn-exportar">Exportar backup</button>
-          <button class="botao botao--escuro" type="button" id="btn-importar">Importar backup</button>
+          <button class="botao botao--amarelo" type="button" id="btn-exportar" data-i18n="backup.exportar">Exportar backup</button>
+          <button class="botao botao--escuro" type="button" id="btn-importar" data-i18n="backup.importar">Importar backup</button>
           <input type="file" id="arquivo-backup" accept="application/json,.json" hidden>
-          <button class="botao botao--perigo" type="button" id="btn-apagar-tudo">Apagar todas</button>
+          <button class="botao botao--perigo" type="button" id="btn-apagar-tudo" data-i18n="backup.apagar">Apagar todas</button>
         </div>
 
         <div class="backup__confirmar" id="confirmar-apagar" role="group" aria-labelledby="texto-confirmar" hidden>
           <p id="texto-confirmar"></p>
           <div class="backup__botoes">
-            <button class="botao botao--cheio" type="button" id="btn-confirmar-apagar">Sim, apagar tudo</button>
-            <button class="botao botao--neutro" type="button" id="btn-cancelar-apagar">Cancelar</button>
+            <button class="botao botao--cheio" type="button" id="btn-confirmar-apagar" data-i18n="backup.sim">Sim, apagar tudo</button>
+            <button class="botao botao--neutro" type="button" id="btn-cancelar-apagar" data-i18n="backup.cancelar">Cancelar</button>
           </div>
         </div>
         <p class="backup__aviso" id="msg-backup" role="status"></p>
@@ -115,66 +119,66 @@
 
     <!-- TELA 2: o wrapped -->
     <section class="tela" id="wrapped" aria-labelledby="titulo-wrapped">
-      <h2 id="titulo-wrapped" class="tela__titulo">Seu wrapped</h2>
+      <h2 id="titulo-wrapped" class="tela__titulo" data-i18n="wrapped.titulo">Seu wrapped</h2>
 
-      <label class="filtro" for="filtro-ano">
-        Período
+      <label class="filtro">
+        <span data-i18n="wrapped.periodo">Período</span>
         <select id="filtro-ano">
-          <option value="todos">Todos os anos</option>
+          <option value="todos" data-i18n="wrapped.todos">Todos os anos</option>
         </select>
       </label>
 
       <div class="painel">
 
         <article class="bloco bloco--horas">
-          <h3 class="bloco__titulo">Horas ouvidas</h3>
+          <h3 class="bloco__titulo" data-i18n="b.horas">Horas ouvidas</h3>
           <p class="bloco__numero" id="stat-horas">0</p>
         </article>
 
         <article class="bloco bloco--minutos">
-          <h3 class="bloco__titulo">Minutos de audição</h3>
+          <h3 class="bloco__titulo" data-i18n="b.minutos">Minutos de audição</h3>
           <p class="bloco__numero bloco__numero--minutos" id="stat-minutos">0</p>
         </article>
 
         <article class="bloco bloco--personalidade">
-          <h3 class="bloco__titulo">Personalidade</h3>
+          <h3 class="bloco__titulo" data-i18n="b.personalidade">Personalidade</h3>
           <p class="bloco__numero bloco__numero--medio" id="stat-personalidade">—</p>
         </article>
 
         <article class="bloco bloco--idade">
-          <h3 class="bloco__titulo">Idade de escuta</h3>
+          <h3 class="bloco__titulo" data-i18n="b.idade">Idade de escuta</h3>
           <p class="bloco__numero bloco__numero--medio" id="stat-idade">—</p>
           <p class="bloco__detalhe" id="stat-idade-detalhe"></p>
           <label class="idade__campo">
-            Seu ano de nascimento (opcional)
-            <input type="number" id="ano-nascimento" min="1930" step="1" inputmode="numeric" placeholder="Ex.: 2003">
+            <span data-i18n="b.nascimento">Seu ano de nascimento (opcional)</span>
+            <input type="number" id="ano-nascimento" min="1930" step="1" inputmode="numeric" placeholder="Ex.: 2003" data-i18n-placeholder="b.nascimento.ph">
           </label>
-          <p class="bloco__nota">Estimativa pela época das suas músicas. Não é comparada com outras pessoas.</p>
+          <p class="bloco__nota" data-i18n="b.idade.nota">Estimativa pela época das suas músicas. Não é comparada com outras pessoas.</p>
         </article>
 
         <article class="bloco bloco--artistas">
-          <h3 class="bloco__titulo">Top artistas</h3>
+          <h3 class="bloco__titulo" data-i18n="b.artistas">Top artistas</h3>
           <ol class="ranking" id="top-artistas"></ol>
         </article>
 
         <article class="bloco bloco--musicas">
-          <h3 class="bloco__titulo">Top músicas</h3>
+          <h3 class="bloco__titulo" data-i18n="b.musicas">Top músicas</h3>
           <ol class="ranking" id="top-musicas"></ol>
         </article>
 
         <article class="bloco bloco--corrida">
-          <h3 class="bloco__titulo">Corrida dos artistas</h3>
-          <p class="bloco__nota">Posição acumulada mês a mês entre os seus 5 artistas favoritos. O 1º lugar fica no topo.</p>
+          <h3 class="bloco__titulo" data-i18n="b.corrida">Corrida dos artistas</h3>
+          <p class="bloco__nota" data-i18n="b.corrida.nota">Posição acumulada mês a mês entre os seus 5 artistas favoritos. O 1º lugar fica no topo.</p>
           <div id="corrida-area"></div>
         </article>
 
         <article class="bloco bloco--albuns">
-          <h3 class="bloco__titulo">Álbuns mais ouvidos</h3>
+          <h3 class="bloco__titulo" data-i18n="b.albuns">Álbuns mais ouvidos</h3>
           <ol class="ranking" id="top-albuns"></ol>
         </article>
 
         <article class="bloco bloco--generos">
-          <h3 class="bloco__titulo">Principais gêneros</h3>
+          <h3 class="bloco__titulo" data-i18n="b.generos">Principais gêneros</h3>
           <ol class="ranking" id="top-generos"></ol>
         </article>
 
@@ -188,7 +192,7 @@
 
     <!-- TELA 3: quiz -->
     <section class="tela" id="quiz" aria-labelledby="titulo-quiz">
-      <h2 id="titulo-quiz" class="tela__titulo">Quiz do seu ano</h2>
+      <h2 id="titulo-quiz" class="tela__titulo" data-i18n="quiz.titulo">Quiz do seu ano</h2>
       <div id="quiz-area" aria-live="polite"></div>
     </section>
 
@@ -196,20 +200,20 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <nav class="menu" aria-label="Navegação principal">
-    <a class="menu__link" href="#registrar">Registrar</a>
-    <a class="menu__link" href="#wrapped">Wrapped</a>
-    <a class="menu__link" href="#quiz">Quiz</a>
+  <nav class="menu" aria-label="Navegação principal" data-i18n-aria="menu.aria">
+    <a class="menu__link" href="#registrar" data-i18n="menu.registrar">Registrar</a>
+    <a class="menu__link" href="#wrapped" data-i18n="menu.wrapped">Wrapped</a>
+    <a class="menu__link" href="#quiz" data-i18n="menu.quiz">Quiz</a>
   </nav>
 
   <!-- Molde de um item de música. O JavaScript copia este molde para cada resultado. -->
   <template id="tpl-faixa">
     <li class="faixa faixa--selecionavel">
       <label class="faixa__selecionar">
-        <input type="checkbox" aria-label="Selecionar música">
+        <input type="checkbox" aria-label="Selecionar música" data-i18n-aria="tpl.selecionar">
         <span class="marca" aria-hidden="true"></span>
       </label>
-      <img class="faixa__capa" alt="">
+      <img class="faixa__capa" alt="" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==">
       <div class="faixa__info">
         <strong class="faixa__titulo"></strong>
         <span class="faixa__artista"></span>
@@ -217,23 +221,24 @@
       <span class="faixa__duracao"></span>
 
       <details class="registro">
-        <summary class="registro__abrir">Registrar</summary>
+        <summary class="registro__abrir" data-i18n="tpl.registrar">Registrar</summary>
         <div class="registro__corpo">
           <label class="registro__minutos">
-            Data em que você ouviu
+            <span data-i18n="tpl.data">Data em que você ouviu</span>
             <input type="date" required>
           </label>
-          <button class="botao botao--amarelo" type="button" data-acao="completa">Ouvi completa</button>
+          <button class="botao botao--amarelo" type="button" data-acao="completa" data-i18n="tpl.completa">Ouvi completa</button>
           <label class="registro__minutos">
-            Ou informe os minutos ouvidos
-            <input type="number" min="0" step="any" inputmode="decimal" placeholder="Ex.: 2,5">
+            <span data-i18n="tpl.minutos">Ou informe os minutos ouvidos</span>
+            <input type="number" min="0" step="any" inputmode="decimal" placeholder="Ex.: 2,5" data-i18n-placeholder="tpl.minutos.ph">
           </label>
-          <button class="botao botao--escuro" type="button" data-acao="parcial">Salvar minutos</button>
+          <button class="botao botao--escuro" type="button" data-acao="parcial" data-i18n="tpl.salvar">Salvar minutos</button>
         </div>
       </details>
     </li>
   </template>
 
+  <script src="i18n.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

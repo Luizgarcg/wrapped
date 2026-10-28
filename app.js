@@ -11,7 +11,9 @@ const selecionarTodas = document.getElementById("selecionar-todas");
 const contagemSelecao = document.getElementById("contagem-selecao");
 const dataSelecao = document.getElementById("data-selecao");
 const avisoSelecao = document.getElementById("aviso-selecao");
-const botaoRegistrarSelecionadas = document.getElementById("btn-registrar-selecionadas");
+const botaoRegistrarSelecionadas = document.getElementById(
+  "btn-registrar-selecionadas",
+);
 const botaoLimparSelecao = document.getElementById("btn-limpar-selecao");
 const detalhesSelecionadas = document.getElementById("detalhes-selecionadas");
 const resumoSelecionadas = document.getElementById("resumo-selecionadas");
@@ -22,9 +24,13 @@ const selecaoAcumulada = new Map();
 
 // Seleção de várias escutas para remover
 const barraRemocao = document.getElementById("barra-remocao");
-const selecionarTodasEscutas = document.getElementById("selecionar-todas-escutas");
+const selecionarTodasEscutas = document.getElementById(
+  "selecionar-todas-escutas",
+);
 const contagemRemocao = document.getElementById("contagem-remocao");
-const botaoRemoverSelecionadas = document.getElementById("btn-remover-selecionadas");
+const botaoRemoverSelecionadas = document.getElementById(
+  "btn-remover-selecionadas",
+);
 const idsParaRemover = new Set(); // continua marcado mesmo se a lista for redesenhada
 const listaEscutas = document.getElementById("escutas");
 
@@ -35,7 +41,9 @@ let resultadosAtuais = new Map();
 const idsNovos = new Set();
 
 // Respeita quem pediu menos movimento no aparelho (sem matchMedia também conta como "sem animação")
-const semAnimacao = () => !window.matchMedia || window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const semAnimacao = () =>
+  !window.matchMedia ||
+  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 // Aviso rápido no pé da tela
 const toast = document.getElementById("toast");
@@ -45,7 +53,10 @@ function mostrarToast(texto) {
   toast.textContent = texto;
   toast.classList.add("toast--visivel");
   clearTimeout(temporizadorToast);
-  temporizadorToast = setTimeout(() => toast.classList.remove("toast--visivel"), 2600);
+  temporizadorToast = setTimeout(
+    () => toast.classList.remove("toast--visivel"),
+    2600,
+  );
 }
 
 // Cartões "fantasma" enquanto a busca carrega
@@ -54,7 +65,10 @@ function criarEsqueleto() {
   item.setAttribute("aria-hidden", "true");
 
   const info = criarElemento("div", "esqueleto__info");
-  info.append(criarElemento("span", "esqueleto__linha"), criarElemento("span", "esqueleto__linha esqueleto__linha--curta"));
+  info.append(
+    criarElemento("span", "esqueleto__linha"),
+    criarElemento("span", "esqueleto__linha esqueleto__linha--curta"),
+  );
 
   item.append(criarElemento("div", "esqueleto__capa"), info);
   return item;
@@ -130,14 +144,22 @@ function formatarDuracao(segundos) {
 }
 
 function criarItem(faixa) {
-  const item = document.importNode(moldeFaixa.content, true).querySelector(".faixa");
+  const item = document
+    .importNode(moldeFaixa.content, true)
+    .querySelector(".faixa");
 
   item.dataset.id = faixa.id;
   item.querySelector(".faixa__capa").src = faixa.capa;
   item.querySelector(".faixa__titulo").textContent = faixa.titulo;
-  item.querySelector(".faixa__selecionar input").setAttribute("aria-label", `Selecionar ${faixa.titulo}`);
+  definirAria(
+    item.querySelector(".faixa__selecionar input"),
+    "sel.aria.musica",
+    { titulo: faixa.titulo },
+  );
   item.querySelector(".faixa__artista").textContent = faixa.artista;
-  item.querySelector(".faixa__duracao").textContent = formatarDuracao(faixa.duracaoSeg);
+  item.querySelector(".faixa__duracao").textContent = formatarDuracao(
+    faixa.duracaoSeg,
+  );
 
   const campoData = item.querySelector('input[type="date"]');
   campoData.value = hoje();
@@ -164,9 +186,11 @@ formBusca.addEventListener("submit", async (evento) => {
 
   const botao = formBusca.querySelector("button");
   botao.disabled = true;
-  listaResultados.replaceChildren(...Array.from({ length: 4 }, () => criarEsqueleto()));
+  listaResultados.replaceChildren(
+    ...Array.from({ length: 4 }, () => criarEsqueleto()),
+  );
   atualizarSelecao();
-  msgBusca.textContent = "Buscando...";
+  definir(msgBusca, "busca.buscando");
 
   try {
     const faixas = await buscarMusicas(termo);
@@ -174,7 +198,7 @@ formBusca.addEventListener("submit", async (evento) => {
     if (faixas.length === 0) {
       listaResultados.replaceChildren();
       atualizarSelecao();
-      msgBusca.textContent = "Nenhum resultado. Tente outro nome.";
+      definir(msgBusca, "busca.nenhum");
     } else {
       mostrarResultados(faixas);
     }
@@ -182,7 +206,7 @@ formBusca.addEventListener("submit", async (evento) => {
     console.error(erro);
     listaResultados.replaceChildren();
     atualizarSelecao();
-    msgBusca.textContent = "Não foi possível buscar agora. Verifique sua internet e tente de novo.";
+    definir(msgBusca, "busca.erro");
   } finally {
     botao.disabled = false;
   }
@@ -259,7 +283,7 @@ function formatarMinutos(minutos) {
 
 function formatarData(data) {
   const [ano, mes, dia] = data.split("-");
-  return `${dia}/${mes}/${ano}`;
+  return idiomaAtual === "pt" ? `${dia}/${mes}/${ano}` : `${mes}/${dia}/${ano}`;
 }
 
 function criarItemEscuta(escuta) {
@@ -287,19 +311,24 @@ function criarItemEscuta(escuta) {
 
   const tempo = document.createElement("span");
   tempo.className = "faixa__duracao";
-  tempo.textContent = escuta.completa ? "Completa" : formatarMinutos(escuta.minutosOuvidos);
+  tempo.textContent = escuta.completa
+    ? t("escuta.completa")
+    : formatarMinutos(escuta.minutosOuvidos);
 
   const remover = document.createElement("button");
   remover.type = "button";
   remover.className = "faixa__remover";
   remover.dataset.remover = escuta.id;
-  remover.textContent = "Remover";
+  remover.textContent = t("escuta.remover");
 
   const caixa = document.createElement("input");
   caixa.type = "checkbox";
   caixa.dataset.id = escuta.id;
   caixa.checked = idsParaRemover.has(escuta.id);
-  caixa.setAttribute("aria-label", `Selecionar ${escuta.titulo} para remover`);
+  caixa.setAttribute(
+    "aria-label",
+    t("sel.aria.escuta", { titulo: escuta.titulo }),
+  );
 
   const marca = criarElemento("span", "marca");
   marca.setAttribute("aria-hidden", "true");
@@ -330,7 +359,7 @@ function mostrarEscutas() {
 }
 
 // ===== Cliques nos botões de cada resultado =====
-function mostrarAviso(item, texto) {
+function mostrarAviso(item, chave, vars) {
   let aviso = item.querySelector(".registro__aviso");
   if (!aviso) {
     aviso = document.createElement("p");
@@ -338,7 +367,7 @@ function mostrarAviso(item, texto) {
     aviso.setAttribute("role", "alert");
     item.querySelector(".registro__corpo").append(aviso);
   }
-  aviso.textContent = texto;
+  definir(aviso, chave, vars);
 }
 
 listaResultados.addEventListener("click", (evento) => {
@@ -353,11 +382,11 @@ listaResultados.addEventListener("click", (evento) => {
 
   const data = item.querySelector('input[type="date"]').value;
   if (!data) {
-    mostrarAviso(item, "Informe a data em que você ouviu.");
+    mostrarAviso(item, "aviso.data");
     return;
   }
   if (data > hoje()) {
-    mostrarAviso(item, "A data não pode ser no futuro.");
+    mostrarAviso(item, "aviso.futuro");
     return;
   }
 
@@ -370,25 +399,25 @@ listaResultados.addEventListener("click", (evento) => {
     minutos = campo.valueAsNumber;
 
     if (!minutos || minutos <= 0) {
-      mostrarAviso(item, "Informe quantos minutos você ouviu.");
+      mostrarAviso(item, "aviso.minutos");
       return;
     }
     if (minutos > duracaoMin) {
-      mostrarAviso(item, `A música tem só ${formatarMinutos(duracaoMin)}. Informe um valor menor.`);
+      mostrarAviso(item, "aviso.maximo", { min: formatarMinutos(duracaoMin) });
       return;
     }
     campo.value = "";
   }
 
   if (!registrarEscuta(faixa, minutos, data)) {
-    mostrarAviso(item, "Não foi possível salvar. O armazenamento do navegador pode estar bloqueado.");
+    mostrarAviso(item, "aviso.salvar");
     return;
   }
 
   item.querySelector(".registro__aviso")?.remove();
   item.querySelector("details").open = false; // fecha o formulário
   mostrarEscutas();
-  mostrarToast("Escuta salva ✓");
+  mostrarToast(t("toast.salva"));
 });
 
 // ===== Selecionar várias músicas (a seleção atravessa as buscas) =====
@@ -414,29 +443,37 @@ function atualizarSelecao() {
   const total = selecaoAcumulada.size;
 
   barraSelecao.hidden = caixas.length === 0 && total === 0;
-  contagemSelecao.textContent = total === 1 ? "1 selecionada" : `${total} selecionadas`;
+  definir(contagemSelecao, total === 1 ? "sel.um" : "sel.varios", { n: total });
   botaoRegistrarSelecionadas.disabled = total === 0;
   botaoLimparSelecao.disabled = total === 0;
 
   // "selecionar todos" vale só para os resultados que estão na tela
   selecionarTodas.disabled = caixas.length === 0;
   selecionarTodas.checked = caixas.length > 0 && marcadasAqui === caixas.length;
-  selecionarTodas.indeterminate = marcadasAqui > 0 && marcadasAqui < caixas.length;
+  selecionarTodas.indeterminate =
+    marcadasAqui > 0 && marcadasAqui < caixas.length;
 
   desenharListaSelecionadas();
-  avisoSelecao.textContent = "";
+  definir(avisoSelecao, null);
 }
 
 // Lista de tudo que está selecionado, com um × para tirar cada música
 function desenharListaSelecionadas() {
   const itens = [...selecaoAcumulada.entries()].map(([id, faixa]) => {
     const item = criarElemento("li", "selecao__item");
-    const nome = criarElemento("span", "selecao__nome", `${faixa.titulo} — ${faixa.artista}`);
+    const nome = criarElemento(
+      "span",
+      "selecao__nome",
+      `${faixa.titulo} — ${faixa.artista}`,
+    );
 
     const tirar = criarElemento("button", "selecao__tirar", "×");
     tirar.type = "button";
     tirar.dataset.id = id;
-    tirar.setAttribute("aria-label", `Tirar ${faixa.titulo} da seleção`);
+    tirar.setAttribute(
+      "aria-label",
+      t("sel.tirar.aria", { titulo: faixa.titulo }),
+    );
 
     item.append(nome, tirar);
     return item;
@@ -444,7 +481,7 @@ function desenharListaSelecionadas() {
 
   listaSelecionadas.replaceChildren(...itens);
   detalhesSelecionadas.hidden = itens.length === 0;
-  resumoSelecionadas.textContent = `Ver selecionadas (${itens.length})`;
+  definir(resumoSelecionadas, "sel.ver", { n: itens.length });
 }
 
 listaResultados.addEventListener("change", (evento) => {
@@ -485,30 +522,40 @@ botaoLimparSelecao.addEventListener("click", () => {
 botaoRegistrarSelecionadas.addEventListener("click", () => {
   const data = dataSelecao.value;
   if (!data) {
-    avisoSelecao.textContent = "Informe a data em que você ouviu.";
+    definir(avisoSelecao, "aviso.data");
     return;
   }
   if (data > hoje()) {
-    avisoSelecao.textContent = "A data não pode ser no futuro.";
+    definir(avisoSelecao, "aviso.futuro");
     return;
   }
 
-  const itens = [...selecaoAcumulada.values()].map((faixa) => ({ faixa, minutos: faixa.duracaoSeg / 60 })); // "ouvi completa"
+  const itens = [...selecaoAcumulada.values()].map((faixa) => ({
+    faixa,
+    minutos: faixa.duracaoSeg / 60,
+  })); // "ouvi completa"
   if (itens.length === 0) return;
 
   if (!registrarEscutas(itens, data)) {
-    avisoSelecao.textContent = "Não foi possível salvar. O armazenamento do navegador pode estar bloqueado.";
+    definir(avisoSelecao, "aviso.salvar");
     return;
   }
 
   selecaoAcumulada.clear();
   atualizarSelecao();
   mostrarEscutas();
-  mostrarToast(itens.length === 1 ? "1 música registrada ✓" : `${itens.length} músicas registradas ✓`);
+  mostrarToast(
+    itens.length === 1 ? t("toast.um") : t("toast.varios", { n: itens.length }),
+  );
 });
 
 // ===== Cálculos do wrapped =====
 const ANO_ATUAL = new Date().getFullYear();
+
+// "Sem álbum" fica salvo em português; aqui ele aparece no idioma atual
+function nomeAlbum(album) {
+  return !album || album === "Sem álbum" ? t("sem.album") : album;
+}
 
 // Soma os minutos ouvidos agrupando por uma chave (artista, música, álbum)
 function somarPor(escutas, chaveFn, rotuloFn) {
@@ -516,7 +563,11 @@ function somarPor(escutas, chaveFn, rotuloFn) {
 
   for (const escuta of escutas) {
     const chave = chaveFn(escuta);
-    const grupo = grupos.get(chave) || { rotulo: rotuloFn(escuta), minutos: 0, vezes: 0 };
+    const grupo = grupos.get(chave) || {
+      rotulo: rotuloFn(escuta),
+      minutos: 0,
+      vezes: 0,
+    };
     grupo.minutos += escuta.minutosOuvidos;
     grupo.vezes += 1;
     grupos.set(chave, grupo);
@@ -531,53 +582,76 @@ function calcularWrapped(escutas) {
   // ano médio de lançamento, com peso nos minutos ouvidos
   const anoMedio =
     totalMin > 0
-      ? Math.round(escutas.reduce((soma, e) => soma + e.ano * e.minutosOuvidos, 0) / totalMin)
+      ? Math.round(
+          escutas.reduce((soma, e) => soma + e.ano * e.minutosOuvidos, 0) /
+            totalMin,
+        )
       : null;
 
   return {
     qtd: escutas.length,
     totalMin,
     anoMedio,
-    artistas: somarPor(escutas, (e) => e.artista, (e) => e.artista),
+    artistas: somarPor(
+      escutas,
+      (e) => e.artista,
+      (e) => e.artista,
+    ),
     // músicas: ranking por número de vezes ouvidas; empate decide pelos minutos
-    musicas: somarPor(escutas, (e) => e.musicaId, (e) => `${e.titulo} — ${e.artista}`).sort(
-      (a, b) => b.vezes - a.vezes || b.minutos - a.minutos
-    ),
+    musicas: somarPor(
+      escutas,
+      (e) => e.musicaId,
+      (e) => `${e.titulo} — ${e.artista}`,
+    ).sort((a, b) => b.vezes - a.vezes || b.minutos - a.minutos),
     // gêneros: escutas sem gênero (registradas antes dessa função) não entram
-    generos: somarPor(escutas, (e) => e.genero || "Desconhecido", (e) => e.genero || "Desconhecido").filter(
-      (g) => g.rotulo !== "Desconhecido"
-    ),
+    generos: somarPor(
+      escutas,
+      (e) => e.genero || "Desconhecido",
+      (e) => e.genero || "Desconhecido",
+    ).filter((g) => g.rotulo !== "Desconhecido"),
     albuns: somarPor(
       escutas,
       (e) => `${e.album}|${e.artista}`,
-      (e) => `${e.album || "Sem álbum"} — ${e.artista}`
+      (e) => `${nomeAlbum(e.album)} — ${e.artista}`,
     ),
   };
 }
 
 // Regras simples; dá para ajustar os números depois
 function definirPersonalidade(wrapped) {
-  if (wrapped.qtd < 5) return "Ainda descobrindo";
+  if (wrapped.qtd < 5) return t("pers.descobrindo");
 
   const idadeDaMusica = ANO_ATUAL - wrapped.anoMedio;
   const parteDoTopArtista = wrapped.artistas[0].minutos / wrapped.totalMin;
   const variedade = wrapped.artistas.length / wrapped.qtd; // 1 = todo registro é um artista diferente
 
-  if (idadeDaMusica >= 15) return "Nostálgico";
-  if (parteDoTopArtista >= 0.5) return "Fiel";
-  if (variedade >= 0.6) return "Explorador";
-  return "Eclético";
+  if (idadeDaMusica >= 15) return t("pers.nostalgico");
+  if (parteDoTopArtista >= 0.5) return t("pers.fiel");
+  if (variedade >= 0.6) return t("pers.explorador");
+  return t("pers.ecletico");
 }
 
 // ===== Tela do wrapped =====
+// Decimal com vírgula em português e ponto em inglês
+function decimal(texto) {
+  return idiomaAtual === "pt" ? texto.replace(".", ",") : texto;
+}
+
+function ordinal(n) {
+  if (idiomaAtual === "pt") return `${n}º`;
+  const resto = n % 100;
+  if (resto >= 11 && resto <= 13) return `${n}th`;
+  return n + ({ 1: "st", 2: "nd", 3: "rd" }[n % 10] || "th");
+}
+
 function formatarHoras(minutos) {
   // minutos / 6 = décimos de hora; Math.round arredonda 0,35 para 0,4 (toFixed daria 0,3)
-  return `${(Math.round(minutos / 6) / 10).toFixed(1).replace(".", ",")} h`;
+  return `${decimal((Math.round(minutos / 6) / 10).toFixed(1))} h`;
 }
 
 function formatarTempo(minutos) {
   if (minutos < 60) return `${Math.round(minutos)} min`;
-  return `${(minutos / 60).toFixed(1).replace(".", ",")} h`;
+  return `${decimal((minutos / 60).toFixed(1))} h`;
 }
 
 // medida: o que a barra compara entre os itens ("minutos" ou "vezes")
@@ -585,7 +659,7 @@ function preencherRanking(lista, itens, limite = 5, medida = "minutos") {
   if (itens.length === 0) {
     const vazio = document.createElement("li");
     vazio.className = "ranking__vazio";
-    vazio.textContent = "Sem dados ainda";
+    vazio.textContent = t("sem.dados");
     lista.replaceChildren(vazio);
     return;
   }
@@ -606,7 +680,7 @@ function preencherRanking(lista, itens, limite = 5, medida = "minutos") {
 
     const barra = document.createElement("span");
     barra.className = "ranking__barra";
-    barra.style.setProperty("--proporcao", String(maior > 0 ? item[medida] / maior : 0));
+    barra.style.transform = `scaleX(${maior > 0 ? item[medida] / maior : 0})`; // tamanho da barra
 
     linha.append(nome, tempo, barra);
     return linha;
@@ -619,18 +693,29 @@ const filtroAno = document.getElementById("filtro-ano");
 
 // Monta as opções do filtro com os anos que existem nas escutas
 function atualizarFiltroAno(escutas) {
-  const anos = [...new Set(escutas.map((e) => (e.data || "").slice(0, 4)).filter(Boolean))].sort().reverse();
+  const anos = [
+    ...new Set(escutas.map((e) => (e.data || "").slice(0, 4)).filter(Boolean)),
+  ]
+    .sort()
+    .reverse();
   const selecionado = filtroAno.value;
 
-  filtroAno.replaceChildren(new Option("Todos os anos", "todos"), ...anos.map((ano) => new Option(ano, ano)));
+  filtroAno.replaceChildren(
+    new Option(t("wrapped.todos"), "todos"),
+    ...anos.map((ano) => new Option(ano, ano)),
+  );
   filtroAno.value = anos.includes(selecionado) ? selecionado : "todos";
 }
 
-filtroAno.addEventListener("change", () => mostrarWrapped(carregarEscutas(), true));
+filtroAno.addEventListener("change", () =>
+  mostrarWrapped(carregarEscutas(), true),
+);
 
 function escutasDoPeriodo(todasAsEscutas) {
   const ano = filtroAno.value;
-  return ano === "todos" ? todasAsEscutas : todasAsEscutas.filter((e) => (e.data || "").startsWith(ano));
+  return ano === "todos"
+    ? todasAsEscutas
+    : todasAsEscutas.filter((e) => (e.data || "").startsWith(ano));
 }
 
 // ----- Idade de escuta -----
@@ -644,7 +729,11 @@ const campoNascimento = document.getElementById("ano-nascimento");
 function lerAnoNascimento() {
   try {
     const ano = Number(localStorage.getItem(CHAVE_NASCIMENTO));
-    return Number.isInteger(ano) && ano >= ANO_NASCIMENTO_MIN && ano <= ANO_ATUAL ? ano : null;
+    return Number.isInteger(ano) &&
+      ano >= ANO_NASCIMENTO_MIN &&
+      ano <= ANO_ATUAL
+      ? ano
+      : null;
   } catch (erro) {
     return null;
   }
@@ -655,7 +744,8 @@ campoNascimento.value = lerAnoNascimento() || "";
 
 campoNascimento.addEventListener("change", () => {
   const ano = campoNascimento.valueAsNumber;
-  const valido = Number.isInteger(ano) && ano >= ANO_NASCIMENTO_MIN && ano <= ANO_ATUAL;
+  const valido =
+    Number.isInteger(ano) && ano >= ANO_NASCIMENTO_MIN && ano <= ANO_ATUAL;
 
   try {
     if (valido) localStorage.setItem(CHAVE_NASCIMENTO, String(ano));
@@ -674,30 +764,38 @@ function mostrarIdadeDeEscuta(wrapped, animar) {
 
   if (wrapped.qtd === 0) {
     numero.textContent = "—";
-    detalhe.textContent = "Registre músicas para descobrir.";
+    detalhe.textContent = t("idade.registre");
     return;
   }
 
   const idadeDeEscuta = ANO_ATUAL - (wrapped.anoMedio - IDADE_DO_GOSTO);
-  animarNumero(numero, idadeDeEscuta, (valor) => `${Math.round(valor)} anos`, animar);
+  animarNumero(
+    numero,
+    idadeDeEscuta,
+    (valor) => t("idade.anos", { n: Math.round(valor) }),
+    animar,
+  );
 
   const nascimento = lerAnoNascimento();
-  let comparacao = "Informe seu ano de nascimento para comparar com a sua idade real.";
+  let comparacao = t("idade.informe");
 
   if (nascimento) {
     const idadeReal = ANO_ATUAL - nascimento;
     const diferenca = idadeDeEscuta - idadeReal;
 
     if (Math.abs(diferenca) <= 2) {
-      comparacao = `Você tem ${idadeReal} anos e escuta como alguém da sua idade.`;
+      comparacao = t("idade.igual", { idade: idadeReal });
     } else if (diferenca > 0) {
-      comparacao = `Você tem ${idadeReal} anos, mas escuta como alguém ${diferenca} anos mais velho.`;
+      comparacao = t("idade.mais", { idade: idadeReal, dif: diferenca });
     } else {
-      comparacao = `Você tem ${idadeReal} anos, mas escuta como alguém ${-diferenca} anos mais novo.`;
+      comparacao = t("idade.menos", { idade: idadeReal, dif: -diferenca });
     }
   }
 
-  detalhe.textContent = `A média das suas músicas é de ${wrapped.anoMedio}. ${comparacao}`;
+  detalhe.textContent = t("idade.detalhe", {
+    ano: wrapped.anoMedio,
+    comp: comparacao,
+  });
 }
 
 function mostrarWrapped(todasAsEscutas, animar = false) {
@@ -706,30 +804,56 @@ function mostrarWrapped(todasAsEscutas, animar = false) {
   const wrapped = calcularWrapped(escutas);
   const temDados = wrapped.qtd > 0;
 
-  animarNumero(document.getElementById("stat-horas"), wrapped.totalMin, temDados ? formatarHoras : () => "0", animar);
+  animarNumero(
+    document.getElementById("stat-horas"),
+    wrapped.totalMin,
+    temDados ? formatarHoras : () => "0",
+    animar,
+  );
   animarNumero(
     document.getElementById("stat-minutos"),
     Math.round(wrapped.totalMin),
-    (valor) => Math.round(valor).toLocaleString("pt-BR"),
-    animar
+    (valor) =>
+      Math.round(valor).toLocaleString(
+        idiomaAtual === "pt" ? "pt-BR" : "en-US",
+      ),
+    animar,
   );
 
   mostrarIdadeDeEscuta(wrapped, animar);
 
-  document.getElementById("stat-personalidade").textContent = temDados ? definirPersonalidade(wrapped) : "—";
+  document.getElementById("stat-personalidade").textContent = temDados
+    ? definirPersonalidade(wrapped)
+    : "—";
 
   preencherRanking(document.getElementById("top-artistas"), wrapped.artistas);
   mostrarCorrida(escutas);
-  preencherRanking(document.getElementById("top-musicas"), wrapped.musicas, 5, "vezes");
+  preencherRanking(
+    document.getElementById("top-musicas"),
+    wrapped.musicas,
+    5,
+    "vezes",
+  );
   preencherRanking(document.getElementById("top-albuns"), wrapped.albuns);
   preencherRanking(document.getElementById("top-generos"), wrapped.generos);
 
   // playlist com as 100 músicas mais ouvidas
-  const nomePeriodo = ano === "todos" ? "" : ` de ${ano}`;
+  const nomePeriodo = ano === "todos" ? "" : t("periodo.de", { ano });
   const totalNaPlaylist = Math.min(wrapped.musicas.length, 100);
-  document.getElementById("titulo-playlist").textContent =
-    `Suas músicas mais ouvidas${nomePeriodo} · ${totalNaPlaylist} ${totalNaPlaylist === 1 ? "música" : "músicas"}`;
-  preencherRanking(document.getElementById("playlist-lista"), wrapped.musicas, 100, "vezes");
+  document.getElementById("titulo-playlist").textContent = t(
+    "playlist.titulo",
+    {
+      p: nomePeriodo,
+      n: totalNaPlaylist,
+      u: t(totalNaPlaylist === 1 ? "musica.um" : "musica.varios"),
+    },
+  );
+  preencherRanking(
+    document.getElementById("playlist-lista"),
+    wrapped.musicas,
+    100,
+    "vezes",
+  );
 }
 
 // ===== Remover escuta =====
@@ -740,13 +864,13 @@ listaEscutas.addEventListener("click", (evento) => {
   const item = botao.closest(".faixa");
   if (item.classList.contains("faixa--saindo")) return; // já está saindo
 
-  if (!confirm("Remover esta escuta?")) return;
+  if (!confirm(t("confirm.uma"))) return;
 
   const id = Number(botao.dataset.remover);
   const concluir = () => {
     salvarEscutas(carregarEscutas().filter((escuta) => escuta.id !== id));
     mostrarEscutas();
-    mostrarToast("Escuta removida");
+    mostrarToast(t("toast.removida"));
   };
 
   if (semAnimacao()) {
@@ -773,12 +897,20 @@ function atualizarBarraRemocao() {
   const marcadas = caixas.filter((caixa) => caixa.checked);
 
   barraRemocao.hidden = caixas.length === 0;
-  caixas.forEach((caixa) => caixa.closest(".faixa").classList.toggle("faixa--selecionada", caixa.checked));
+  caixas.forEach((caixa) =>
+    caixa
+      .closest(".faixa")
+      .classList.toggle("faixa--selecionada", caixa.checked),
+  );
 
-  contagemRemocao.textContent = marcadas.length === 1 ? "1 selecionada" : `${marcadas.length} selecionadas`;
+  definir(contagemRemocao, marcadas.length === 1 ? "sel.um" : "sel.varios", {
+    n: marcadas.length,
+  });
   botaoRemoverSelecionadas.disabled = marcadas.length === 0;
-  selecionarTodasEscutas.checked = caixas.length > 0 && marcadas.length === caixas.length;
-  selecionarTodasEscutas.indeterminate = marcadas.length > 0 && marcadas.length < caixas.length;
+  selecionarTodasEscutas.checked =
+    caixas.length > 0 && marcadas.length === caixas.length;
+  selecionarTodasEscutas.indeterminate =
+    marcadas.length > 0 && marcadas.length < caixas.length;
 }
 
 listaEscutas.addEventListener("change", (evento) => {
@@ -799,14 +931,24 @@ botaoRemoverSelecionadas.addEventListener("click", () => {
   const ids = new Set(idsParaRemover);
   if (ids.size === 0) return;
 
-  const pergunta = ids.size === 1 ? "a escuta selecionada" : `as ${ids.size} escutas selecionadas`;
-  if (!confirm(`Remover ${pergunta}? Isso não pode ser desfeito.`)) return;
+  if (
+    !confirm(
+      ids.size === 1
+        ? t("confirm.sel.um")
+        : t("confirm.sel.varios", { n: ids.size }),
+    )
+  )
+    return;
 
   const concluir = () => {
     salvarEscutas(carregarEscutas().filter((escuta) => !ids.has(escuta.id)));
     idsParaRemover.clear();
     mostrarEscutas();
-    mostrarToast(ids.size === 1 ? "1 escuta removida" : `${ids.size} escutas removidas`);
+    mostrarToast(
+      ids.size === 1
+        ? t("toast.removida.um")
+        : t("toast.removidas", { n: ids.size }),
+    );
   };
 
   if (semAnimacao()) {
@@ -825,13 +967,17 @@ botaoRemoverSelecionadas.addEventListener("click", () => {
 const msgBackup = document.getElementById("msg-backup");
 
 function montarBackup() {
-  return JSON.stringify({ versao: 1, exportadoEm: hoje(), escutas: carregarEscutas() }, null, 2);
+  return JSON.stringify(
+    { versao: 1, exportadoEm: hoje(), escutas: carregarEscutas() },
+    null,
+    2,
+  );
 }
 
 document.getElementById("btn-exportar").addEventListener("click", () => {
   const escutas = carregarEscutas();
   if (escutas.length === 0) {
-    msgBackup.textContent = "Não há escutas para exportar ainda.";
+    definir(msgBackup, "backup.vazio.exportar");
     return;
   }
 
@@ -843,7 +989,7 @@ document.getElementById("btn-exportar").addEventListener("click", () => {
   link.click();
   URL.revokeObjectURL(url);
 
-  msgBackup.textContent = `${escutas.length} escutas exportadas.`;
+  definir(msgBackup, "backup.exportadas", { n: escutas.length });
 });
 
 // ----- Apagar todas as escutas (pede confirmação) -----
@@ -855,11 +1001,13 @@ document.getElementById("btn-apagar-tudo").addEventListener("click", () => {
   const total = carregarEscutas().length;
 
   if (total === 0) {
-    msgBackup.textContent = "Não há escutas para apagar.";
+    definir(msgBackup, "backup.vazio.apagar");
     return;
   }
 
-  textoApagar.textContent = `Apagar ${total === 1 ? "a escuta registrada" : `as ${total} escutas registradas`}? Isso não pode ser desfeito. Se quiser guardar uma cópia, exporte um backup antes.`;
+  definir(textoApagar, total === 1 ? "apagar.um" : "apagar.varios", {
+    n: total,
+  });
   painelApagar.hidden = false;
   botaoCancelarApagar.focus(); // o foco começa na opção segura
 });
@@ -868,17 +1016,21 @@ botaoCancelarApagar.addEventListener("click", () => {
   painelApagar.hidden = true;
 });
 
-document.getElementById("btn-confirmar-apagar").addEventListener("click", () => {
-  salvarEscutas([]);
-  painelApagar.hidden = true;
-  mostrarEscutas();
-  msgBackup.textContent = "";
-  mostrarToast("Todas as escutas foram apagadas");
-});
+document
+  .getElementById("btn-confirmar-apagar")
+  .addEventListener("click", () => {
+    salvarEscutas([]);
+    painelApagar.hidden = true;
+    mostrarEscutas();
+    definir(msgBackup, null);
+    mostrarToast(t("toast.apagadas"));
+  });
 
 const campoArquivo = document.getElementById("arquivo-backup");
 
-document.getElementById("btn-importar").addEventListener("click", () => campoArquivo.click());
+document
+  .getElementById("btn-importar")
+  .addEventListener("click", () => campoArquivo.click());
 
 // Aceita só registros com os campos que o app precisa e copia apenas esses campos
 function limparEscuta(bruta) {
@@ -886,8 +1038,14 @@ function limparEscuta(bruta) {
   const numeroOk = (v) => typeof v === "number" && Number.isFinite(v);
 
   if (!bruta || typeof bruta !== "object") return null;
-  if (!numeroOk(bruta.id) || !textoOk(bruta.titulo) || !textoOk(bruta.artista)) return null;
-  if (!numeroOk(bruta.ano) || !numeroOk(bruta.duracaoSeg) || bruta.duracaoSeg <= 0) return null;
+  if (!numeroOk(bruta.id) || !textoOk(bruta.titulo) || !textoOk(bruta.artista))
+    return null;
+  if (
+    !numeroOk(bruta.ano) ||
+    !numeroOk(bruta.duracaoSeg) ||
+    bruta.duracaoSeg <= 0
+  )
+    return null;
   if (!numeroOk(bruta.minutosOuvidos) || bruta.minutosOuvidos <= 0) return null;
 
   return {
@@ -898,7 +1056,10 @@ function limparEscuta(bruta) {
     album: textoOk(bruta.album) ? bruta.album : "Sem álbum",
     ano: bruta.ano,
     duracaoSeg: bruta.duracaoSeg,
-    capa: typeof bruta.capa === "string" && bruta.capa.startsWith("https://") ? bruta.capa : "",
+    capa:
+      typeof bruta.capa === "string" && bruta.capa.startsWith("https://")
+        ? bruta.capa
+        : "",
     genero: textoOk(bruta.genero) ? bruta.genero : "Desconhecido",
     completa: Boolean(bruta.completa),
     minutosOuvidos: bruta.minutosOuvidos,
@@ -917,22 +1078,57 @@ campoArquivo.addEventListener("change", async () => {
 
     const atuais = carregarEscutas();
     const idsAtuais = new Set(atuais.map((escuta) => escuta.id));
-    const novas = lista.map(limparEscuta).filter((escuta) => escuta && !idsAtuais.has(escuta.id));
+    const novas = lista
+      .map(limparEscuta)
+      .filter((escuta) => escuta && !idsAtuais.has(escuta.id));
 
     salvarEscutas([...atuais, ...novas]);
     mostrarEscutas();
-    msgBackup.textContent = `${novas.length} escutas importadas. ${lista.length - novas.length} ignoradas (repetidas ou inválidas).`;
+    definir(msgBackup, "backup.importadas", {
+      n: novas.length,
+      i: lista.length - novas.length,
+    });
   } catch (erro) {
     console.error(erro);
-    msgBackup.textContent = "Não foi possível importar. Use um arquivo exportado por este app.";
+    definir(msgBackup, "backup.erro");
   } finally {
     campoArquivo.value = ""; // permite escolher o mesmo arquivo de novo
   }
 });
 
 // ===== Corrida dos artistas =====
-const NOMES_MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
-const CORES_CORRIDA = ["var(--magenta)", "var(--ciano)", "var(--amarelo)", "#b18cff", "#ff9a3c"];
+const NOMES_MESES = {
+  pt: [
+    "jan",
+    "fev",
+    "mar",
+    "abr",
+    "mai",
+    "jun",
+    "jul",
+    "ago",
+    "set",
+    "out",
+    "nov",
+    "dez",
+  ],
+  en: [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ],
+};
+// Cores das 5 linhas da corrida (sobre fundo escuro): rosa, turquesa, amarelo, lilás e laranja
+const CORES_CORRIDA = ["#FF4FA3", "#22D3EE", "#FFD84D", "#A78BFA", "#FF9F43"];
 const NS_SVG = "http://www.w3.org/2000/svg";
 
 // Lista todos os meses entre a primeira e a última escuta (inclusive meses sem escuta): "2026-01", "2026-02"...
@@ -960,18 +1156,24 @@ function listarMeses(escutas) {
 
 function rotuloMes(mes) {
   const [ano, numero] = mes.split("-");
-  return `${NOMES_MESES[Number(numero) - 1]}/${ano.slice(2)}`;
+  return `${NOMES_MESES[idiomaAtual][Number(numero) - 1]}/${ano.slice(2)}`;
 }
 
 // Posição de cada um dos 5 artistas favoritos em cada mês, pelo total de minutos acumulado até aquele mês.
 // posição null = ainda não tinha ouvido esse artista.
 function calcularCorrida(escutas) {
   const meses = listarMeses(escutas);
-  const nomes = somarPor(escutas, (e) => e.artista, (e) => e.artista)
+  const nomes = somarPor(
+    escutas,
+    (e) => e.artista,
+    (e) => e.artista,
+  )
     .slice(0, 5)
     .map((artista) => artista.rotulo);
 
-  const minutosPorMes = new Map(nomes.map((nome) => [nome, meses.map(() => 0)]));
+  const minutosPorMes = new Map(
+    nomes.map((nome) => [nome, meses.map(() => 0)]),
+  );
   for (const escuta of escutas) {
     const linha = minutosPorMes.get(escuta.artista);
     const indice = meses.indexOf((escuta.data || "").slice(0, 7));
@@ -994,12 +1196,16 @@ function calcularCorrida(escutas) {
       });
   });
 
-  return { meses, artistas: nomes.map((nome, i) => ({ nome, posicoes: posicoes[i] })) };
+  return {
+    meses,
+    artistas: nomes.map((nome, i) => ({ nome, posicoes: posicoes[i] })),
+  };
 }
 
 function criarSvg(tag, atributos = {}) {
   const elemento = document.createElementNS(NS_SVG, tag);
-  for (const [chave, valor] of Object.entries(atributos)) elemento.setAttribute(chave, valor);
+  for (const [chave, valor] of Object.entries(atributos))
+    elemento.setAttribute(chave, valor);
   return elemento;
 }
 
@@ -1018,28 +1224,52 @@ function desenharCorrida(corrida) {
   const ultimo = n - 1;
   const lider = artistas.find((a) => a.posicoes[ultimo] === 1);
 
-  const grafico = criarSvg("svg", { viewBox: `0 0 ${largura} ${altura}`, width: largura, height: altura, role: "img", "aria-labelledby": "corrida-titulo corrida-desc" });
+  const grafico = criarSvg("svg", {
+    viewBox: `0 0 ${largura} ${altura}`,
+    width: largura,
+    height: altura,
+    role: "img",
+    "aria-labelledby": "corrida-titulo corrida-desc",
+  });
   grafico.classList.add("corrida__svg");
 
   const titulo = criarSvg("title", { id: "corrida-titulo" });
-  titulo.textContent = "Corrida dos artistas";
+  titulo.textContent = t("b.corrida");
   const descricao = criarSvg("desc", { id: "corrida-desc" });
-  descricao.textContent = `Posição acumulada de ${artistas.length} artistas de ${rotuloMes(meses[0])} a ${rotuloMes(meses[ultimo])}. No último mês, o primeiro lugar é ${lider ? lider.nome : "indefinido"}.`;
+  descricao.textContent = t("corrida.desc", {
+    n: artistas.length,
+    de: rotuloMes(meses[0]),
+    ate: rotuloMes(meses[ultimo]),
+    lider: lider ? lider.nome : t("corrida.indefinido"),
+  });
   grafico.append(titulo, descricao);
 
   // linhas de grade e posições (1º a 5º)
   for (let posicao = 1; posicao <= 5; posicao++) {
-    const grade = criarSvg("line", { x1: esquerda, x2: largura - 8, y1: y(posicao), y2: y(posicao) });
+    const grade = criarSvg("line", {
+      x1: esquerda,
+      x2: largura - 8,
+      y1: y(posicao),
+      y2: y(posicao),
+    });
     grade.classList.add("corrida__grade");
-    const rotulo = criarSvg("text", { x: esquerda - 8, y: y(posicao) + 4, "text-anchor": "end" });
+    const rotulo = criarSvg("text", {
+      x: esquerda - 8,
+      y: y(posicao) + 4,
+      "text-anchor": "end",
+    });
     rotulo.classList.add("corrida__texto");
-    rotulo.textContent = `${posicao}º`;
+    rotulo.textContent = ordinal(posicao);
     grafico.append(grade, rotulo);
   }
 
   // meses
   meses.forEach((mes, m) => {
-    const rotulo = criarSvg("text", { x: x(m), y: y(5) + 30, "text-anchor": "middle" });
+    const rotulo = criarSvg("text", {
+      x: x(m),
+      y: y(5) + 30,
+      "text-anchor": "middle",
+    });
     rotulo.classList.add("corrida__texto");
     rotulo.textContent = rotuloMes(mes);
     grafico.append(rotulo);
@@ -1049,7 +1279,9 @@ function desenharCorrida(corrida) {
   artistas.forEach((artista, i) => {
     const cor = CORES_CORRIDA[i];
     const pontos = artista.posicoes
-      .map((posicao, m) => (posicao === null ? null : { x: x(m), y: y(posicao) }))
+      .map((posicao, m) =>
+        posicao === null ? null : { x: x(m), y: y(posicao) },
+      )
       .filter(Boolean);
 
     let caminho = `M ${pontos[0].x} ${pontos[0].y}`;
@@ -1061,12 +1293,16 @@ function desenharCorrida(corrida) {
     const linha = criarSvg("path", { d: caminho, pathLength: 1 });
     linha.classList.add("corrida__linha");
     linha.style.stroke = cor;
-    linha.style.filter = `drop-shadow(0 0 5px ${cor})`;
-    linha.style.setProperty("--atraso", `${i * 0.15}s`);
+    linha.style.animationDelay = `${i * 0.15}s`;
     grafico.append(linha);
 
     for (const ponto of pontos) {
-      const marcador = criarSvg("rect", { x: ponto.x - 6, y: ponto.y - 6, width: 12, height: 12 });
+      const marcador = criarSvg("rect", {
+        x: ponto.x - 6,
+        y: ponto.y - 6,
+        width: 12,
+        height: 12,
+      });
       marcador.classList.add("corrida__marcador");
       marcador.style.fill = cor;
       grafico.append(marcador);
@@ -1090,7 +1326,7 @@ function criarLegendaCorrida(corrida) {
       cor.setAttribute("aria-hidden", "true");
 
       const item = document.createElement("li");
-      item.append(cor, `${artista.posicoes[ultimo]}º ${artista.nome}`);
+      item.append(cor, `${ordinal(artista.posicoes[ultimo])} ${artista.nome}`);
       legenda.append(item);
     });
 
@@ -1103,13 +1339,18 @@ function criarTabelaCorrida(corrida) {
   tabela.className = "corrida__tabela";
 
   const cabecalho = document.createElement("tr");
-  cabecalho.append(criarElemento("th", "", "Artista"), ...corrida.meses.map((mes) => criarElemento("th", "", rotuloMes(mes))));
+  cabecalho.append(
+    criarElemento("th", "", t("corrida.artista")),
+    ...corrida.meses.map((mes) => criarElemento("th", "", rotuloMes(mes))),
+  );
 
   const corpo = corrida.artistas.map((artista) => {
     const linha = document.createElement("tr");
     linha.append(
       criarElemento("th", "", artista.nome),
-      ...artista.posicoes.map((posicao) => criarElemento("td", "", posicao === null ? "—" : `${posicao}º`))
+      ...artista.posicoes.map((posicao) =>
+        criarElemento("td", "", posicao === null ? "—" : ordinal(posicao)),
+      ),
     );
     return linha;
   });
@@ -1117,7 +1358,10 @@ function criarTabelaCorrida(corrida) {
   tabela.append(cabecalho, ...corpo);
 
   const detalhes = criarElemento("details", "corrida__detalhes");
-  detalhes.append(criarElemento("summary", "", "Ver em tabela"), criarElemento("div", "corrida__rolagem", ""));
+  detalhes.append(
+    criarElemento("summary", "", t("corrida.tabela")),
+    criarElemento("div", "corrida__rolagem", ""),
+  );
   detalhes.querySelector("div").append(tabela);
   return detalhes;
 }
@@ -1127,13 +1371,15 @@ function mostrarCorrida(escutas) {
   const corrida = calcularCorrida(escutas);
 
   if (corrida.artistas.length < 2 || corrida.meses.length < 2) {
-    area.replaceChildren(
-      criarElemento("p", "vazio", "Registre escutas de pelo menos 2 artistas, em pelo menos 2 meses diferentes, para ver a corrida.")
-    );
+    area.replaceChildren(criarElemento("p", "vazio", t("corrida.vazio")));
     return;
   }
 
-  area.replaceChildren(desenharCorrida(corrida), criarLegendaCorrida(corrida), criarTabelaCorrida(corrida));
+  area.replaceChildren(
+    desenharCorrida(corrida),
+    criarLegendaCorrida(corrida),
+    criarTabelaCorrida(corrida),
+  );
 }
 
 // ===== Quiz =====
@@ -1171,15 +1417,25 @@ function gerarPerguntas(wrapped, periodo) {
   const mesmaMusica = (a, b) => a.vezes === b.vezes && mesmosMinutos(a, b);
 
   return [
-    criarPergunta(`Qual foi a sua música mais ouvida${periodo}?`, wrapped.musicas, mesmaMusica),
-    criarPergunta(`Qual artista você mais ouviu${periodo}?`, wrapped.artistas, mesmosMinutos),
-    criarPergunta(`Qual álbum você mais ouviu${periodo}?`, wrapped.albuns, mesmosMinutos),
-    criarPergunta(`Qual gênero mais marcou o seu som${periodo}?`, wrapped.generos, mesmosMinutos),
+    criarPergunta(t("q.musica", { p: periodo }), wrapped.musicas, mesmaMusica),
+    criarPergunta(
+      t("q.artista", { p: periodo }),
+      wrapped.artistas,
+      mesmosMinutos,
+    ),
+    criarPergunta(t("q.album", { p: periodo }), wrapped.albuns, mesmosMinutos),
+    criarPergunta(
+      t("q.genero", { p: periodo }),
+      wrapped.generos,
+      mesmosMinutos,
+    ),
   ].filter(Boolean);
 }
 
 function textoDoPeriodo() {
-  return filtroAno.value === "todos" ? "" : ` em ${filtroAno.value}`;
+  return filtroAno.value === "todos"
+    ? ""
+    : t("periodo.em", { ano: filtroAno.value });
 }
 
 function gerarPerguntasDoPeriodo() {
@@ -1193,20 +1449,27 @@ function mostrarInicioQuiz() {
   const cartao = criarElemento("div", "quiz__cartao");
 
   if (perguntas.length === 0) {
-    cartao.append(
-      criarElemento("p", "quiz__texto", "Registre pelo menos 2 músicas diferentes para jogar. Empates no primeiro lugar também impedem a pergunta.")
-    );
+    cartao.append(criarElemento("p", "quiz__texto", t("quiz.vazio")));
   } else {
-    const periodo = filtroAno.value === "todos" ? "todos os anos" : filtroAno.value;
-    const botao = criarElemento("button", "botao botao--amarelo", "Começar quiz");
+    const periodo =
+      filtroAno.value === "todos" ? t("quiz.todos") : filtroAno.value;
+    const botao = criarElemento(
+      "button",
+      "botao botao--amarelo",
+      t("quiz.comecar"),
+    );
     botao.type = "button";
     botao.id = "quiz-comecar";
     botao.addEventListener("click", iniciarQuiz);
 
     cartao.append(
-      criarElemento("p", "quiz__texto", `Você sabe o que mais ouviu? Responda ${perguntas.length} perguntas sobre o seu período.`),
-      criarElemento("p", "quiz__nota", `Período: ${periodo}. Para mudar, use o filtro na aba Wrapped.`),
-      botao
+      criarElemento(
+        "p",
+        "quiz__texto",
+        t("quiz.intro", { n: perguntas.length }),
+      ),
+      criarElemento("p", "quiz__nota", t("quiz.periodo", { p: periodo })),
+      botao,
     );
   }
 
@@ -1239,7 +1502,9 @@ function mostrarPergunta() {
   for (const opcao of pergunta.opcoes) {
     const botao = criarElemento("button", "botao botao--opcao", opcao.rotulo);
     botao.type = "button";
-    botao.addEventListener("click", () => responder(pergunta, opcao, botao, botoes, cartao));
+    botao.addEventListener("click", () =>
+      responder(pergunta, opcao, botao, botoes, cartao),
+    );
     botoes.push(botao);
 
     const linha = document.createElement("li");
@@ -1248,9 +1513,13 @@ function mostrarPergunta() {
   }
 
   cartao.append(
-    criarElemento("p", "quiz__progresso", `Pergunta ${quiz.indice + 1} de ${quiz.perguntas.length}`),
+    criarElemento(
+      "p",
+      "quiz__progresso",
+      t("quiz.progresso", { i: quiz.indice + 1, n: quiz.perguntas.length }),
+    ),
     titulo,
-    lista
+    lista,
   );
   areaQuiz.replaceChildren(cartao);
   titulo.focus({ preventScroll: true });
@@ -1275,12 +1544,18 @@ function responder(pergunta, opcao, botaoEscolhido, botoes, cartao) {
   const feedback = criarElemento(
     "p",
     "quiz__feedback",
-    acertou ? `Certo! ${descreverItem(pergunta.correta)}` : `Quase! Era ${descreverItem(pergunta.correta)}`
+    t(acertou ? "quiz.certo" : "quiz.errado", {
+      d: descreverItem(pergunta.correta),
+    }),
   );
   feedback.setAttribute("role", "status");
 
   const ultima = quiz.indice === quiz.perguntas.length - 1;
-  const proxima = criarElemento("button", "botao botao--escuro", ultima ? "Ver resultado" : "Próxima pergunta");
+  const proxima = criarElemento(
+    "button",
+    "botao botao--escuro",
+    t(ultima ? "quiz.ver" : "quiz.proxima"),
+  );
   proxima.type = "button";
   proxima.id = "quiz-proxima";
   proxima.addEventListener("click", () => {
@@ -1300,16 +1575,28 @@ function mostrarResultadoQuiz() {
   const total = quiz.perguntas.length;
   const cartao = criarElemento("div", "quiz__cartao");
 
-  const botao = criarElemento("button", "botao botao--amarelo", "Jogar de novo");
+  const botao = criarElemento(
+    "button",
+    "botao botao--amarelo",
+    t("quiz.denovo"),
+  );
   botao.type = "button";
   botao.id = "quiz-de-novo";
   botao.addEventListener("click", iniciarQuiz);
 
   cartao.append(
-    criarElemento("p", "quiz__progresso", "Resultado"),
-    criarElemento("p", "quiz__placar", `${quiz.acertos} de ${total}`),
-    criarElemento("p", "quiz__texto", quiz.acertos === total ? "Você conhece bem o seu som!" : "Dá para melhorar. Que tal ver o Wrapped e tentar de novo?"),
-    botao
+    criarElemento("p", "quiz__progresso", t("quiz.resultado")),
+    criarElemento(
+      "p",
+      "quiz__placar",
+      t("quiz.placar", { a: quiz.acertos, n: total }),
+    ),
+    criarElemento(
+      "p",
+      "quiz__texto",
+      t(quiz.acertos === total ? "quiz.otimo" : "quiz.melhorar"),
+    ),
+    botao,
   );
   areaQuiz.replaceChildren(cartao);
 }
@@ -1318,6 +1605,13 @@ function mostrarResultadoQuiz() {
 window.addEventListener("hashchange", () => {
   if (location.hash === "#quiz") mostrarInicioQuiz();
   if (location.hash === "#wrapped") mostrarWrapped(carregarEscutas(), true);
+});
+
+// Ao trocar o idioma, redesenha o que o JavaScript criou (o quiz em andamento volta ao início)
+document.addEventListener("idioma:mudou", () => {
+  mostrarEscutas();
+  desenharListaSelecionadas();
+  mostrarInicioQuiz();
 });
 
 // ===== Ao abrir a página =====

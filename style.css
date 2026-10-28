@@ -1,104 +1,133 @@
-/* ===== Variáveis ===== */
-:root {
-  --fundo: #0b0720;
-  --texto: #f5f2ff;
-  --magenta: #ff2e93;
-  --ciano: #19e3ff;
-  --amarelo: #ffe14d;
-  --violeta: #7b3cff;
-  --vidro: rgba(255, 255, 255, 0.08);
-  --borda-vidro: rgba(255, 255, 255, 0.28);
+/* ==========================================================================
+   MEU WRAPPED — style.css  (visual "Pop escuro": fundo escuro, cores vivas, sem brilhos)
+   --------------------------------------------------------------------------
+   Este arquivo NÃO usa variáveis CSS: todas as cores, fontes e medidas estão
+   escritas direto em cada regra, para você editar à mão.
 
-  --fonte-titulo: "Chakra Petch", "Trebuchet MS", sans-serif;
-  --fonte-texto: "DM Sans", system-ui, sans-serif;
+   ÍNDICE
+     1. Base (reset, fundo da página, foco)
+     2. Layout geral (largura, troca de telas)
+     3. Tipografia (títulos)
+     4. Cabeçalho (topo, seletor de idioma, equalizador)
+     5. Botões
+     6. Formulários (busca, campos, filtro, caixa de seleção)
+     7. Lista de músicas (cartões, registro, esqueleto)
+     8. Seleção de várias músicas e escutas
+     9. Wrapped (painel, blocos, rankings, idade, corrida)
+    10. Quiz
+    11. Backup e limpeza
+    12. Menu inferior
+    13. Aviso rápido (toast)
+    14. Fundo decorativo (quadrados coloridos flutuantes)
+    15. Animações e movimento
+    16. Responsivo (telas maiores)
 
-  --largura: 30rem;
+   PALETA POP ESCURA (use "Localizar e substituir" para trocar uma cor no site inteiro)
+     Fundo da página ........ #14102B
+     Cartões e painéis ...... #1F1A40
+     Opções do quiz ......... #2A2454
+     Texto claro ............ #F7F4FF  e  rgba(255, 255, 255, ...)
+     Rosa ................... #FF4FA3  e  rgba(255, 79, 163, ...)
+     Turquesa ............... #22D3EE  e  rgba(34, 211, 238, ...)
+     Amarelo ................ #FFD84D  e  rgba(255, 216, 77, ...)
+     Lilás .................. #A78BFA
+     Laranja ................ #FF9F43
+     Azul ................... #4D8DFF
+     Menta .................. #4ADE9A
+     Borda de campos ........ #8E88C7
+     Borda suave ............ rgba(255, 255, 255, 0.10)
 
-  /* Para usar uma imagem sua no fundo, troque none por: url("img/fundo.jpg") */
-  --imagem-fundo: none;
-}
+   DICA DE CONTRASTE: sobre as cores vivas (rosa, turquesa, amarelo, lilás,
+   laranja, azul, menta) use sempre texto ESCURO (#14102B).
 
-/* ===== Base ===== */
+   FONTES (Google Fonts, carregadas no <head> do index.html)
+     Títulos e números grandes: Plus Jakarta Sans (pesos 700 e 800)
+     Textos, botões e campos:   Inter (pesos 400, 500 e 700)
+     Para trocar: mude o nome no link do index.html e use "Localizar e
+     substituir" aqui no CSS (os nomes aparecem só em font-family).
+
+   OBS.: os nomes das classes dos botões (botao--escuro, botao--amarelo...)
+   vêm do design antigo e foram mantidos para não quebrar o HTML e o JavaScript.
+   ========================================================================== */
+
+
+
+/* ==========================================================================
+   1. BASE
+   ========================================================================== */
+
+/* ----- Reset: tudo sem margem e com cantos quadrados ----- */
 *,
 *::before,
 *::after {
   box-sizing: border-box;
   margin: 0;
-  border-radius: 0; /* tudo quadrado */
+  border-radius: 0;
 }
 
+/* ----- Campos e botões usam a mesma fonte do resto do site -----
+   (por padrão o navegador usa uma fonte própria nesses elementos) */
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+
+/* ----- Página: fundo escuro liso, texto claro ----- */
 body {
-  color: var(--texto);
-  font-family: var(--fonte-texto);
+  color: #F7F4FF;
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   line-height: 1.5;
-  padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
+  -webkit-font-smoothing: antialiased; /* letras mais nítidas no Mac e no iPhone */
+  -moz-osx-font-smoothing: grayscale;
+  padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px)); /* espaço para o menu inferior */
   min-height: 100vh;
-  background-color: var(--fundo);
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-    radial-gradient(circle at 0% 0%, rgba(255, 46, 147, 0.75), transparent 45%),
-    radial-gradient(circle at 100% 30%, rgba(25, 227, 255, 0.55), transparent 45%),
-    radial-gradient(circle at 20% 100%, rgba(123, 60, 255, 0.8), transparent 50%),
-    radial-gradient(circle at 100% 100%, rgba(255, 225, 77, 0.45), transparent 40%);
-  background-size: 32px 32px, 32px 32px, auto, auto, auto, auto;
-  background-attachment: fixed;
+  background-color: #0e0c1c;
 }
 
-/* camada para a sua imagem de fundo (opcional) */
+/* ----- Imagem de fundo opcional -----
+   Para usar uma imagem sua, troque "none" por: url("img/fundo.jpg") */
 body::before {
   content: "";
   position: fixed;
   inset: 0;
   z-index: -1;
-  background-image: var(--imagem-fundo);
+  background-image: none;
   background-size: cover;
   background-position: center;
   opacity: 0.4;
   pointer-events: none;
 }
 
+/* ----- Listas sem marcadores ----- */
 ul,
 ol {
   padding: 0;
   list-style: none;
 }
 
+/* ----- Contorno roxo ao navegar pelo teclado ----- */
 :focus-visible {
-  outline: 3px solid var(--amarelo);
+  outline: 3px solid #A78BFA;
   outline-offset: 3px;
 }
 
+
+/* ==========================================================================
+   2. LAYOUT GERAL
+   ========================================================================== */
+
+/* ----- Largura máxima do conteúdo (30rem = celular) ----- */
 .topo,
 main {
-  max-width: var(--largura);
+  max-width: 30rem;
   margin-inline: auto;
   padding-inline: 1.25rem;
 }
 
-/* ===== Topo ===== */
-.topo {
-  padding-top: calc(2rem + env(safe-area-inset-top, 0px));
-  padding-bottom: 1rem;
-}
-
-.topo__titulo {
-  font-family: var(--fonte-titulo);
-  font-weight: 700;
-  font-size: clamp(2.75rem, 14vw, 4rem);
-  line-height: 0.95;
-  letter-spacing: -0.02em;
-  text-shadow:
-    3px 3px 0 var(--magenta),
-    0 0 24px rgba(25, 227, 255, 0.8);
-}
-
-.topo__texto {
-  margin-top: 0.75rem;
-  max-width: 24rem;
-}
-
-/* ===== Troca de telas (sem JavaScript) ===== */
+/* ----- Troca de telas (funciona sem JavaScript, pelo #endereço) -----
+   Por padrão só "Registrar" aparece; as outras abrem pelo menu. */
 .tela {
   display: none;
   padding-block: 1rem 2rem;
@@ -108,63 +137,253 @@ main {
   display: block;
 }
 
-body:has(#wrapped:target) #registrar {
+body:has(#wrapped:target) #registrar,
+body:has(#quiz:target) #registrar {
   display: none;
 }
 
-#wrapped:target {
+#wrapped:target,
+#quiz:target {
   display: block;
 }
 
+
+/* ==========================================================================
+   3. TIPOGRAFIA
+   ========================================================================== */
+
+/* ----- Título de cada tela (barra turquesa na esquerda) ----- */
 .tela__titulo {
-  font-family: var(--fonte-titulo);
+  font-family: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   font-weight: 700;
+  letter-spacing: -0.01em;
   font-size: 1.6rem;
   margin-bottom: 1rem;
   padding-left: 0.75rem;
-  border-left: 6px solid var(--ciano);
-  text-shadow: 0 0 14px rgba(25, 227, 255, 0.6);
+  border-left: 6px solid #542e7f;
 }
 
+/* ----- Título secundário ("Suas escutas"): barra amarela ----- */
 .tela__titulo--secundario {
   margin-top: 2.5rem;
-  border-left-color: var(--amarelo);
-  text-shadow: 0 0 14px rgba(255, 225, 77, 0.6);
+  border-left-color: #FFD84D;
 }
 
-/* ===== Botões ===== */
+
+/* ==========================================================================
+   4. CABEÇALHO
+   ========================================================================== */
+
+/* ----- Área do topo ----- */
+.topo {
+  position: relative;
+  padding-top: calc(2rem + env(safe-area-inset-top, 0px));
+  padding-bottom: 1rem;
+}
+
+/* ----- Título "Meu Wrapped" ----- */
+.topo__titulo {
+  font-family: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-weight: 800;
+  font-size: clamp(2.25rem, 11.5vw, 3.5rem);
+  line-height: 1;
+  letter-spacing: -0.03em;
+  padding-right: 3.75rem; /* reserva o espaço do equalizador: se o título for longo, ele quebra de linha em vez de ficar por cima */
+  color: #F7F4FF;
+}
+
+.topo__texto {
+  margin-top: 0.75rem;
+  max-width: 24rem;
+}
+
+/* ----- Seletor de idioma (PT | EN), centralizado acima do título ----- */
+.idioma {
+  display: flex;
+  width: fit-content;
+  margin: 0 auto 1.25rem;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  background: #1F1A40;
+}
+
+.idioma__btn {
+  display: grid;
+  place-items: center;
+  min-width: 4.5rem;
+  min-height: 2.75rem;
+  padding: 0 1.25rem;
+  border: 0;
+  background: transparent;
+  color: #F7F4FF;
+  font-family: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: background-color 0.4s ease;
+}
+
+.idioma__btn + .idioma__btn {
+  border-left: 2px solid rgba(255, 255, 255, 0.35);
+}
+
+.idioma__btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* idioma ativo */
+.idioma__btn[aria-pressed="true"] {
+  background: #cb4e84;
+  color: #14102B;
+}
+
+/* ----- Equalizador (5 barrinhas coloridas no canto do topo) -----
+   Fica abaixo do seletor de idioma, ao lado do título. */
+.equalizador {
+  position: absolute;
+  top: calc(6.25rem + env(safe-area-inset-top, 0px));
+  right: 1.25rem;
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 2.75rem;
+}
+
+.equalizador span {
+  width: 7px;
+  height: 100%;
+  background: #22D3EE;
+  transform-origin: bottom;
+  transform: scaleY(0.6);
+}
+
+.equalizador span:nth-child(2) { background: #FF4FA3; transform: scaleY(0.9); }
+.equalizador span:nth-child(3) { background: #FFD84D; transform: scaleY(0.45); }
+.equalizador span:nth-child(4) { background: #A78BFA; transform: scaleY(0.75); }
+.equalizador span:nth-child(5) { transform: scaleY(0.35); }
+
+
+/* ==========================================================================
+   5. BOTÕES
+   Visual chapado (sem sombra): no hover o botão sobe 1px e escurece de leve.
+   ========================================================================== */
+
+/* ----- Base de todos os botões ----- */
 .botao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  text-align: center;
   font: inherit;
   font-weight: 700;
-  border: 2px solid var(--texto);
+  border: 2px solid #F7F4FF;
+  /* cantos levemente arredondados; sobrepõe o reset de cantos quadrados lá do topo */
+  border-radius: 5px;
   padding: 0.65rem 1.1rem;
   cursor: pointer;
-  transition: transform 0.1s, box-shadow 0.1s;
+  transition: background-color 0.4s ease, border-color 0.2s ease, color 0.3s ease,
+    transform 0.5s ease, filter 0.2s ease;
 }
 
 .botao:hover {
-  transform: translate(-2px, -2px);
+  transform: translateY(-1px);
+  filter: brightness(1.1);
 }
 
 .botao:active {
-  transform: translate(2px, 2px);
+  transform: translateY(0);
+  filter: brightness(0.95);
 }
 
+.botao:disabled {
+  cursor: default;
+  transform: none;
+  filter: none;
+}
+
+/* botões desativados da barra de seleção ficam apagados */
+.selecao .botao:disabled {
+  opacity: 0.5;
+}
+
+/* ----- Rosa (ação principal: Buscar, Importar) ----- */
 .botao--escuro {
-  background: var(--magenta);
-  color: #fff;
-  border-color: var(--magenta);
-  box-shadow: 4px 4px 0 var(--violeta), 0 0 18px rgba(255, 46, 147, 0.7);
+  background: #db3887;
+  color: #fcfcfc;
+  border-color: #FF4FA3;
 }
 
+/* ----- Amarelo (Ouvi completa, Exportar, Começar quiz) ----- */
 .botao--amarelo {
-  background: var(--amarelo);
-  color: var(--fundo);
-  border-color: var(--amarelo);
-  box-shadow: 4px 4px 0 var(--magenta), 0 0 18px rgba(255, 225, 77, 0.6);
+  background: #FFD84D;
+  color: #14102B;
+  border-color: #FFD84D;
 }
 
-/* ===== Busca ===== */
+/* ----- Perigo (Apagar todas, Remover selecionadas): só contorno rosa ----- */
+.botao--perigo {
+  background: transparent;
+  color: #F7F4FF;
+  border-color: #862525;
+}
+
+.botao--perigo:hover {
+  background: rgba(135, 22, 22, 0.1);
+}
+
+/* ----- Confirmar apagar: rosa cheio ----- */
+.botao--cheio {
+  background: #FF4FA3;
+  color: #14102B;
+  border-color: #FF4FA3;
+}
+
+/* ----- Neutro (Cancelar, Limpar seleção): transparente ----- */
+.botao--neutro {
+  background: transparent;
+  color: #F7F4FF;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.botao--neutro:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* ----- Opção do quiz: largura total, texto à esquerda ----- */
+.botao--opcao {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: #2A2454;
+  color: #F7F4FF;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.botao--opcao:hover:not(:disabled) {
+  background: #332C66;
+  border-color: #A78BFA;
+}
+
+/* ----- Botões lado a lado (backup e barra de seleção) ----- */
+.backup__botoes .botao {
+  flex: 1 1 12rem;
+}
+
+.selecao__botoes .botao {
+  flex: 1 1 9rem;
+}
+
+.selecao__linha > .botao--perigo {
+  flex: 1 1 100%;
+}
+
+
+/* ==========================================================================
+   6. FORMULÁRIOS
+   ========================================================================== */
+
+/* ----- Busca ----- */
 .busca__rotulo {
   display: block;
   font-weight: 500;
@@ -176,15 +395,15 @@ body:has(#wrapped:target) #registrar {
   gap: 0.75rem;
 }
 
+/* ----- Campos de texto/número (fundo branco, borda cinza-lilás) ----- */
 .busca__campo,
 .registro__minutos input {
   font: inherit;
-  color: var(--texto);
+  color: #F7F4FF;
   color-scheme: dark;
-  background: rgba(11, 7, 32, 0.55);
-  border: 2px solid var(--ciano);
+  background: #14102B;
+  border: 2px solid #8E88C7;
   padding: 0.65rem 0.9rem;
-  box-shadow: 0 0 14px rgba(25, 227, 255, 0.35);
 }
 
 .busca__campo {
@@ -194,55 +413,162 @@ body:has(#wrapped:target) #registrar {
 
 .busca__campo::placeholder,
 .registro__minutos input::placeholder {
-  color: rgba(245, 242, 255, 0.55);
+  color: rgba(255, 255, 255, 0.55);
 }
 
-/* ===== Lista de faixas ===== */
+/* ----- Filtro de período do wrapped ----- */
+.filtro {
+  display: grid;
+  gap: 0.3rem;
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+
+.filtro select {
+  font: inherit;
+  color: #F7F4FF;
+  color-scheme: dark;
+  background: #14102B;
+  border: 2px solid #8E88C7;
+  padding: 0.65rem 0.9rem;
+}
+
+/* ----- Caixa de seleção quadrada (o campo de verdade fica invisível por cima) ----- */
+.selecao__todas,
+.faixa__selecionar {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.selecao__todas input,
+.faixa__selecionar input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* o desenho da caixa */
+.marca {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 2px solid #22D3EE;
+  background: #14102B;
+  color: #14102B;
+  font-weight: 700;
+  line-height: 1;
+  transition: background-color 0.2s ease;
+}
+
+/* marcada */
+input:checked + .marca {
+  background: #22D3EE;
+}
+
+input:checked + .marca::after {
+  content: "✓";
+}
+
+/* meio marcada ("selecionar todos" com só alguns itens) */
+input:indeterminate + .marca {
+  background: #22D3EE;
+}
+
+input:indeterminate + .marca::after {
+  content: "–";
+}
+
+input:focus-visible + .marca {
+  outline: 3px solid #A78BFA;
+  outline-offset: 3px;
+}
+
+/* a área de toque da caixa na lista é maior que o desenho */
+.faixa__selecionar {
+  justify-content: center;
+  min-width: 2.5rem;
+  min-height: 2.5rem;
+}
+
+/* "selecionar todos" desativado */
+.selecao__todas:has(input:disabled) {
+  opacity: 0.45;
+  cursor: default;
+}
+
+
+/* ==========================================================================
+   7. LISTA DE MÚSICAS (resultados da busca e "Suas escutas")
+   ========================================================================== */
+
+/* ----- Container da lista ----- */
 .lista {
   display: grid;
   gap: 0.9rem;
   margin-top: 1rem;
 }
 
+/* ----- Mensagem de lista vazia (esconde quando há itens) ----- */
 .vazio {
   margin-top: 1rem;
   padding: 1rem;
-  border: 2px dashed var(--borda-vidro);
-  background: var(--vidro);
+  border: 2px dashed rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.04);
 }
 
-/* esconde a mensagem de vazio quando a lista tem itens */
 .lista:not(:empty) + .vazio {
   display: none;
 }
 
+/* ----- Cartão de uma música (faixa colorida na esquerda: rosa por padrão) ----- */
 .faixa {
-  --cor: var(--magenta);
   display: grid;
   grid-template-columns: 3.5rem 1fr auto;
   align-items: center;
   gap: 0.25rem 0.75rem;
-  background: var(--vidro);
-  -webkit-backdrop-filter: blur(14px);
-  backdrop-filter: blur(14px);
-  border: 1px solid var(--borda-vidro);
-  border-left: 6px solid var(--cor);
-  box-shadow: 0 0 22px color-mix(in srgb, var(--cor) 45%, transparent);
+  background: #1F1A40;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-left: 6px solid #FF4FA3;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   padding: 0.75rem;
 }
 
-.faixa:nth-child(4n + 2) { --cor: var(--ciano); }
-.faixa:nth-child(4n + 3) { --cor: var(--amarelo); }
-.faixa:nth-child(4n + 4) { --cor: var(--violeta); }
+/* Com checkbox (4 colunas) */
+.faixa--selecionavel {
+  grid-template-columns: auto 3.5rem 1fr auto;
+  column-gap: 0.5rem;
+}
 
+/* ----- Cor de cada cartão por posição: rosa, turquesa, amarelo, roxo -----
+   Para mudar a ordem ou as cores, edite as três regras abaixo (e as de capa/botão). */
+.faixa:where(:nth-child(4n + 2)) { border-left-color: #22D3EE; }
+.faixa:where(:nth-child(4n + 3)) { border-left-color: #FFD84D; }
+.faixa:where(:nth-child(4n + 4)) { border-left-color: #A78BFA; }
+
+/* ----- Capa do álbum (a cor aparece quando não há imagem) ----- */
 .faixa__capa {
   width: 3.5rem;
   height: 3.5rem;
   object-fit: cover;
-  background: var(--cor);
-  box-shadow: 3px 3px 0 var(--cor);
+  background: #FF4FA3;
 }
 
+:where(.faixa:nth-child(4n + 2)) .faixa__capa { background: #22D3EE; }
+:where(.faixa:nth-child(4n + 3)) .faixa__capa { background: #FFD84D; }
+:where(.faixa:nth-child(4n + 4)) .faixa__capa { background: #A78BFA; }
+
+/* ----- Título, artista e duração ----- */
 .faixa__info {
   display: grid;
   min-width: 0;
@@ -265,28 +591,44 @@ body:has(#wrapped:target) #registrar {
   font-variant-numeric: tabular-nums;
 }
 
-/* ===== Registro dentro da faixa ===== */
+/* ----- Cartão selecionado (borda turquesa) ----- */
+.faixa--selecionada {
+  border-color: #22D3EE;
+  box-shadow: 0 0 0 2px rgba(34, 211, 238, 0.35);
+}
+
+/* ----- Registro: formulário que abre dentro do cartão ----- */
 .registro {
   grid-column: 1 / -1;
   margin-top: 0.5rem;
 }
 
+/* botão "Registrar" (largura toda, texto centralizado, cor do cartão) */
 .registro__abrir {
-  display: inline-block;
+  display: block;
+  min-height: 2.5rem;
+  padding: 0.55rem 1rem;
+  text-align: center;
   font-weight: 700;
-  background: var(--cor);
-  color: var(--fundo);
-  padding: 0.35rem 1rem;
+  background: #FF4FA3;
+  color: #14102B;
   cursor: pointer;
   list-style: none;
+  transition: background-color 0.2s ease;
 }
+
+:where(.faixa:nth-child(4n + 2)) .registro__abrir { background: #22D3EE; color: #14102B; }
+:where(.faixa:nth-child(4n + 3)) .registro__abrir { background: #FFD84D; color: #14102B; }
+:where(.faixa:nth-child(4n + 4)) .registro__abrir { background: #A78BFA; }
 
 .registro__abrir::-webkit-details-marker {
   display: none;
 }
 
+/* aberto: fica claro, com texto escuro */
 .registro[open] .registro__abrir {
-  background: var(--texto);
+  background: #F7F4FF;
+  color: #14102B;
 }
 
 .registro__corpo {
@@ -301,78 +643,375 @@ body:has(#wrapped:target) #registrar {
   font-size: 0.9rem;
 }
 
-/* ===== Wrapped ===== */
+/* aviso de erro no formulário de registro */
+.registro__aviso {
+  color: #F7F4FF;
+  font-size: 0.9rem;
+  font-weight: 500;
+  background: rgba(255, 216, 77, 0.15);
+  border-left: 4px solid #FFD84D;
+  padding: 0.3rem 0.6rem;
+}
+
+/* ----- Botão "Remover" de cada escuta (largura toda, centralizado) ----- */
+.faixa__remover {
+  grid-column: 1 / -1;
+  justify-self: stretch;
+  min-height: 2.5rem;
+  padding: 0.5rem 1rem;
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-align: center;
+  color: #F7F4FF;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.faixa__remover:hover {
+  border-color: #FF4FA3;
+  color: #FF4FA3;
+  background: rgba(255, 79, 163, 0.06);
+}
+
+/* ----- Esqueleto: cartões "fantasma" enquanto a busca carrega ----- */
+.faixa--esqueleto {
+  grid-template-columns: 3.5rem 1fr;
+}
+
+.esqueleto__capa {
+  width: 3.5rem;
+  height: 3.5rem;
+}
+
+.esqueleto__info {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.esqueleto__capa,
+.esqueleto__linha {
+  display: block;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.esqueleto__linha {
+  height: 0.8rem;
+  width: 85%;
+}
+
+.esqueleto__linha--curta {
+  width: 50%;
+}
+
+
+/* ==========================================================================
+   8. SELEÇÃO DE VÁRIAS MÚSICAS E ESCUTAS
+   ========================================================================== */
+
+.resultados-area,
+.escutas-area {
+  position: relative;
+}
+
+/* ----- Barra de seleção (fixa no topo ao rolar; faixa turquesa) ----- */
+.selecao {
+  position: sticky;
+  top: calc(0.5rem + env(safe-area-inset-top, 0px));
+  z-index: 5;
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding: 0.9rem;
+  background: #1F1A40;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-left: 6px solid #22D3EE;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+.selecao[hidden] {
+  display: none;
+}
+
+.selecao__linha {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.selecao__contagem {
+  font-weight: 700;
+  color: #22D3EE;
+}
+
+.selecao__nota {
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+/* campo de data da seleção */
+.selecao__data {
+  display: grid;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.selecao__data input {
+  font: inherit;
+  color: #F7F4FF;
+  color-scheme: dark;
+  background: #14102B;
+  border: 2px solid #8E88C7;
+  padding: 0.5rem 0.7rem;
+}
+
+/* botões "Limpar seleção" e "Ouvi completas" */
+.selecao__botoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  flex: 1 1 100%;
+}
+
+.selecao__aviso {
+  color: #F7F4FF;
+  font-size: 0.9rem;
+  font-weight: 500;
+  background: rgba(255, 216, 77, 0.15);
+  border-left: 4px solid #FFD84D;
+  padding: 0.3rem 0.6rem;
+}
+
+.selecao__aviso:empty {
+  display: none;
+}
+
+/* ----- Lista "Ver selecionadas" ----- */
+.selecao__detalhes {
+  font-size: 0.9rem;
+}
+
+.selecao__detalhes[hidden] {
+  display: none;
+}
+
+.selecao__detalhes summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: #22D3EE;
+}
+
+.selecao__lista {
+  display: grid;
+  gap: 0.35rem;
+  margin-top: 0.6rem;
+  max-height: 11rem;
+  overflow-y: auto;
+}
+
+.selecao__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.3rem 0.3rem 0.3rem 0.6rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-left: 3px solid #22D3EE;
+}
+
+.selecao__nome {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* botão × para tirar uma música da seleção */
+.selecao__tirar {
+  flex: none;
+  width: 2rem;
+  height: 2rem;
+  font: inherit;
+  font-weight: 700;
+  color: #F7F4FF;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.selecao__tirar:hover {
+  border-color: #FF4FA3;
+  color: #FF4FA3;
+  background: rgba(255, 79, 163, 0.06);
+}
+
+/* ----- Seleção para REMOVER (em "Suas escutas"): usa rosa em vez de turquesa ----- */
+.selecao--remocao {
+  border-left-color: #FF4FA3;
+}
+
+.selecao--remocao .selecao__contagem {
+  color: #FF4FA3;
+}
+
+.selecao--remocao .marca,
+#escutas .marca {
+  border-color: #FF4FA3;
+}
+
+.selecao--remocao input:checked + .marca,
+.selecao--remocao input:indeterminate + .marca,
+#escutas input:checked + .marca {
+  background: #FF4FA3;
+  color: #14102B;
+}
+
+#escutas .faixa--selecionada {
+  border-color: #FF4FA3;
+  box-shadow: 0 0 0 2px rgba(255, 79, 163, 0.3);
+}
+
+
+/* ==========================================================================
+   9. WRAPPED (painel, blocos, rankings, idade, corrida)
+   ========================================================================== */
+
+/* ----- Painel: celular = 2 colunas; o resumo em cima e os rankings empilhados -----
+   (a versão de tablet/computador, com 4 colunas, está na seção 16) */
 .painel {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-areas:
+    "horas horas"
+    "minutos personalidade"
+    "idade idade"
+    "artistas artistas"
+    "musicas musicas"
+    "corrida corrida"
+    "albuns albuns"
+    "generos generos"
+    "playlist playlist";
   gap: 0.9rem;
 }
 
+/* ----- Bloco base (cartão branco com faixa turquesa em cima) ----- */
 .bloco {
-  background: var(--vidro);
-  -webkit-backdrop-filter: blur(14px);
-  backdrop-filter: blur(14px);
-  border: 1px solid var(--borda-vidro);
-  border-top: 6px solid var(--ciano);
+  min-width: 0;
+  background: #1F1A40;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 6px solid #22D3EE;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   padding: 1rem;
 }
 
-.bloco--horas,
-.bloco--largo {
-  grid-column: 1 / -1;
-}
-
 .bloco__titulo {
-  font-family: var(--fonte-titulo);
+  font-family: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   font-size: 1rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
 }
 
+/* ----- Números grandes ----- */
 .bloco__numero {
-  font-family: var(--fonte-titulo);
-  font-weight: 700;
-  font-size: clamp(3.5rem, 18vw, 5.5rem);
+  font-family: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-weight: 800;
+  font-size: clamp(3.25rem, 16vw, 5rem);
   line-height: 1;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums; /* dígitos com a mesma largura: o número não "treme" ao contar */
 }
 
 .bloco__numero--medio {
+  font-weight: 700;
   font-size: 1.75rem;
   line-height: 1.15;
+  letter-spacing: -0.01em;
 }
 
-.bloco__album {
-  font-family: var(--fonte-titulo);
-  font-weight: 700;
-  font-size: 1.4rem;
+.bloco__numero--minutos {
+  font-size: clamp(2.25rem, 11vw, 3.25rem);
+  line-height: 1.05;
 }
 
+/* ----- Posição de cada bloco no painel ----- */
+.bloco--horas { grid-area: horas; }
+.bloco--minutos { grid-area: minutos; }
+.bloco--personalidade { grid-area: personalidade; }
+.bloco--idade { grid-area: idade; }
+.bloco--artistas { grid-area: artistas; }
+.bloco--musicas { grid-area: musicas; }
+.bloco--corrida { grid-area: corrida; }
+.bloco--albuns { grid-area: albuns; }
+.bloco--generos { grid-area: generos; }
+.bloco--playlist { grid-area: playlist; }
+
+/* ----- Horas ouvidas: degradê rosa → lilás, texto escuro ----- */
 .bloco--horas {
-  background: linear-gradient(135deg, var(--magenta), var(--violeta));
-  border-color: var(--texto);
-  border-top-color: var(--amarelo);
-  box-shadow: 0 0 36px rgba(255, 46, 147, 0.7);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: linear-gradient(135deg, #FF4FA3, #A78BFA);
+  color: #14102B;
+  border-top-color: #FFD84D;
 }
 
-.bloco--horas .bloco__numero {
-  text-shadow: 4px 4px 0 var(--fundo), 0 0 26px rgba(255, 255, 255, 0.7);
+/* ----- Minutos: degradê lilás → azul, texto escuro ----- */
+.bloco--minutos {
+  background: linear-gradient(135deg, #A78BFA, #4D8DFF);
+  color: #14102B;
+  border-top-color: #22D3EE;
 }
 
+/* ----- Idade de escuta: degradê amarelo → laranja, texto escuro ----- */
 .bloco--idade {
-  background: linear-gradient(135deg, var(--amarelo), #ff9a3c);
-  color: var(--fundo);
-  border-top-color: var(--fundo);
-  box-shadow: 0 0 30px rgba(255, 225, 77, 0.55);
+  background: linear-gradient(135deg, #FFD84D, #FF9F43);
+  color: #14102B;
+  border-top-color: #FF4FA3;
 }
 
+/* ----- Personalidade: degradê turquesa → menta, texto escuro ----- */
 .bloco--personalidade {
-  background: linear-gradient(135deg, var(--ciano), #3d7bff);
-  color: var(--fundo);
-  border-top-color: var(--fundo);
-  box-shadow: 0 0 30px rgba(25, 227, 255, 0.55);
+  background: linear-gradient(135deg, #22D3EE, #4ADE9A);
+  color: #14102B;
+  border-top-color: #A78BFA;
 }
 
-/* ranking: a ordem importa, então o número faz parte da informação */
+/* ----- Textos do bloco de idade ----- */
+.bloco__detalhe {
+  margin-top: 0.4rem;
+  font-weight: 500;
+}
+
+.bloco__nota {
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  opacity: 0.85;
+}
+
+.idade__campo {
+  display: grid;
+  gap: 0.3rem;
+  margin-top: 0.9rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  max-width: 16rem;
+}
+
+.idade__campo input {
+  font: inherit;
+  color: #14102B;
+  background: rgba(255, 255, 255, 0.85);
+  border: 2px solid #14102B;
+  padding: 0.5rem 0.8rem;
+}
+
+/* ----- Rankings (artistas, músicas, álbuns, gêneros, playlist) ----- */
 .ranking {
   display: grid;
   gap: 0.5rem;
@@ -381,251 +1020,32 @@ body:has(#wrapped:target) #registrar {
 
 .ranking li {
   counter-increment: posicao;
+  position: relative;
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  min-width: 0;
+  padding-bottom: 0.5rem; /* espaço para a barrinha de proporção */
 }
 
+/* número da posição (1º amarelo, 2º turquesa, 3º rosa, depois amarelo) */
 .ranking li::before {
   content: counter(posicao);
   display: grid;
   place-items: center;
   flex: none;
-  width: 1.75rem;
+  width: auto;
+  min-width: 1.75rem;
   height: 1.75rem;
-  background: var(--amarelo);
-  color: var(--fundo);
-  font-family: var(--fonte-titulo);
+  padding-inline: 0.35rem; /* posições com 3 dígitos precisam de mais largura */
+  background: #FFD84D;
+  color: #14102B;
+  font-family: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   font-weight: 700;
 }
 
-.ranking li:nth-child(2)::before { background: var(--ciano); }
-.ranking li:nth-child(3)::before { background: var(--magenta); color: #fff; }
-
-/* ===== Menu inferior ===== */
-.menu {
-  position: fixed;
-  inset: auto 0 0 0;
-  display: flex;
-  justify-content: center;
-  gap: 0.75rem;
-  background: rgba(11, 7, 32, 0.7);
-  -webkit-backdrop-filter: blur(16px);
-  backdrop-filter: blur(16px);
-  border-top: 2px solid var(--ciano);
-  box-shadow: 0 -4px 24px rgba(25, 227, 255, 0.4);
-  padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom, 0px));
-}
-
-.menu__link {
-  flex: 1;
-  max-width: 12rem;
-  text-align: center;
-  font-weight: 700;
-  color: var(--texto);
-  text-decoration: none;
-  border: 2px solid var(--borda-vidro);
-  padding: 0.55rem 1rem;
-}
-
-/* link ativo: Registrar por padrão, Wrapped quando a tela dele está aberta */
-.menu__link[href="#registrar"],
-body:has(#wrapped:target) .menu__link[href="#wrapped"] {
-  background: var(--magenta);
-  border-color: var(--magenta);
-  color: #fff;
-  box-shadow: 0 0 18px rgba(255, 46, 147, 0.8);
-}
-
-body:has(#wrapped:target) .menu__link[href="#registrar"] {
-  background: transparent;
-  border-color: var(--borda-vidro);
-  box-shadow: none;
-}
-
-/* sem suporte a blur: deixa os painéis mais opacos para manter a leitura */
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .faixa,
-  .bloco,
-  .menu {
-    background: rgba(25, 18, 60, 0.92);
-  }
-}
-
-/* ===== Telas maiores ===== */
-@media (min-width: 40rem) {
-  body {
-    padding-bottom: 6rem;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .botao {
-    transition: none;
-  }
-}
-
-/* =====================================================
-   ANIMAÇÕES
-   Só rodam se a pessoa não pediu para reduzir movimento.
-   ===================================================== */
-
-/* Equalizador do topo (parado quando o movimento está reduzido) */
-.topo {
-  position: relative;
-}
-
-.equalizador {
-  position: absolute;
-  top: calc(2.25rem + env(safe-area-inset-top, 0px));
-  right: 1.25rem;
-  display: flex;
-  align-items: flex-end;
-  gap: 4px;
-  height: 2.75rem;
-}
-
-.equalizador span {
-  width: 7px;
-  height: 100%;
-  background: var(--ciano);
-  box-shadow: 0 0 12px var(--ciano);
-  transform-origin: bottom;
-  transform: scaleY(0.6);
-}
-
-.equalizador span:nth-child(2) { background: var(--magenta); box-shadow: 0 0 12px var(--magenta); transform: scaleY(0.9); }
-.equalizador span:nth-child(3) { background: var(--amarelo); box-shadow: 0 0 12px var(--amarelo); transform: scaleY(0.45); }
-.equalizador span:nth-child(4) { background: var(--violeta); box-shadow: 0 0 12px var(--violeta); transform: scaleY(0.75); }
-.equalizador span:nth-child(5) { transform: scaleY(0.35); }
-
-@media (prefers-reduced-motion: no-preference) {
-
-  /* 1. Fundo: brilhos coloridos que derivam devagar */
-  body::after {
-    content: "";
-    position: fixed;
-    inset: -25%;
-    z-index: -1;
-    pointer-events: none;
-    background-image:
-      radial-gradient(circle at 20% 30%, rgba(255, 46, 147, 0.35), transparent 30%),
-      radial-gradient(circle at 80% 70%, rgba(25, 227, 255, 0.3), transparent 30%),
-      radial-gradient(circle at 60% 20%, rgba(255, 225, 77, 0.2), transparent 25%);
-    animation: derivar 26s ease-in-out infinite alternate;
-  }
-
-  @keyframes derivar {
-    from { transform: translate3d(-5%, 4%, 0) rotate(0deg); }
-    to   { transform: translate3d(5%, -4%, 0) rotate(10deg); }
-  }
-
-  /* 2. Equalizador: barras batendo em ritmos diferentes */
-  .equalizador span {
-    animation: batida 0.9s ease-in-out infinite alternate;
-  }
-
-  .equalizador span:nth-child(2) { animation-duration: 0.6s; animation-delay: -0.2s; }
-  .equalizador span:nth-child(3) { animation-duration: 1.1s; animation-delay: -0.5s; }
-  .equalizador span:nth-child(4) { animation-duration: 0.75s; animation-delay: -0.1s; }
-  .equalizador span:nth-child(5) { animation-duration: 0.95s; animation-delay: -0.7s; }
-
-  @keyframes batida {
-    from { transform: scaleY(0.2); }
-    to   { transform: scaleY(1); }
-  }
-
-  /* 3. Título: acende como neon ao abrir e depois pulsa */
-  .topo__titulo {
-    animation:
-      neon-acende 1.2s linear both,
-      neon-pulsa 4s ease-in-out 1.2s infinite alternate;
-  }
-
-  @keyframes neon-acende {
-    0%   { opacity: 0.15; }
-    8%   { opacity: 1; }
-    12%  { opacity: 0.3; }
-    20%  { opacity: 1; }
-    26%  { opacity: 0.5; }
-    34%  { opacity: 1; }
-    100% { opacity: 1; }
-  }
-
-  @keyframes neon-pulsa {
-    from { text-shadow: 3px 3px 0 var(--magenta), 0 0 14px rgba(25, 227, 255, 0.5); }
-    to   { text-shadow: 3px 3px 0 var(--magenta), 0 0 34px rgba(25, 227, 255, 1); }
-  }
-
-  /* 4. Músicas: entram uma após a outra quando a lista aparece */
-  .faixa {
-    animation: entrar 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both;
-  }
-
-  .faixa:nth-child(2) { animation-delay: 0.06s; }
-  .faixa:nth-child(3) { animation-delay: 0.12s; }
-  .faixa:nth-child(4) { animation-delay: 0.18s; }
-  .faixa:nth-child(5) { animation-delay: 0.24s; }
-  .faixa:nth-child(6) { animation-delay: 0.3s; }
-  .faixa:nth-child(n + 7) { animation-delay: 0.36s; }
-
-  @keyframes entrar {
-    from { opacity: 0; transform: translateX(-24px); }
-    to   { opacity: 1; transform: translateX(0); }
-  }
-
-  /* 5. Registro: o formulário desliza ao abrir */
-  .registro[open] .registro__corpo {
-    animation: abrir 0.25s ease-out;
-  }
-
-  @keyframes abrir {
-    from { opacity: 0; transform: translateY(-8px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  /* 6. Wrapped: os blocos surgem em sequência a cada vez que a tela abre */
-  #wrapped:target .bloco {
-    animation: surgir 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
-  }
-
-  #wrapped:target .bloco:nth-child(2) { animation-delay: 0.1s; }
-  #wrapped:target .bloco:nth-child(3) { animation-delay: 0.2s; }
-  #wrapped:target .bloco:nth-child(4) { animation-delay: 0.3s; }
-  #wrapped:target .bloco:nth-child(5) { animation-delay: 0.4s; }
-  #wrapped:target .bloco:nth-child(6) { animation-delay: 0.5s; }
-
-  @keyframes surgir {
-    from { opacity: 0; transform: scale(0.92) translateY(14px); }
-    to   { opacity: 1; transform: scale(1) translateY(0); }
-  }
-
-  /* 7. Horas ouvidas: brilho que respira depois de surgir */
-  #wrapped:target .bloco--horas {
-    animation:
-      surgir 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both,
-      brilho 3s ease-in-out 0.6s infinite alternate;
-  }
-
-  @keyframes brilho {
-    from { box-shadow: 0 0 24px rgba(255, 46, 147, 0.5); }
-    to   { box-shadow: 0 0 56px rgba(255, 46, 147, 1); }
-  }
-}
-
-/* Aviso de erro no formulário de registro */
-.registro__aviso {
-  color: var(--amarelo);
-  font-size: 0.9rem;
-  font-weight: 500;
-  border-left: 4px solid var(--amarelo);
-  padding-left: 0.6rem;
-}
-
-/* Linhas do ranking do wrapped */
-.ranking li {
-  min-width: 0;
-}
+.ranking li:nth-child(2)::before { background: #22D3EE; }
+.ranking li:nth-child(3)::before { background: #FF4FA3; color: #14102B; }
 
 .ranking__nome {
   flex: 1;
@@ -641,7 +1061,19 @@ body:has(#wrapped:target) .menu__link[href="#registrar"] {
   opacity: 0.85;
 }
 
-/* mensagem "sem dados" não recebe número de posição */
+/* barrinha de proporção embaixo de cada linha (o tamanho vem do JavaScript) */
+.ranking__barra {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #FF4FA3, #22D3EE);
+  transform-origin: left;
+  transform: scaleX(0);
+}
+
+/* mensagem "Sem dados ainda": sem número de posição */
 .ranking__vazio {
   counter-increment: none !important;
   opacity: 0.8;
@@ -651,100 +1083,7 @@ body:has(#wrapped:target) .menu__link[href="#registrar"] {
   content: none !important;
 }
 
-/* Botão de remover escuta */
-.faixa__remover {
-  grid-column: 1 / -1;
-  justify-self: start;
-  font: inherit;
-  font-size: 0.85rem;
-  color: var(--texto);
-  background: transparent;
-  border: 1px solid var(--borda-vidro);
-  padding: 0.25rem 0.75rem;
-  cursor: pointer;
-}
-
-.faixa__remover:hover {
-  border-color: var(--magenta);
-  color: var(--magenta);
-}
-
-/* Backup */
-.backup {
-  margin-top: 2.5rem;
-  padding: 1rem;
-  background: var(--vidro);
-  -webkit-backdrop-filter: blur(14px);
-  backdrop-filter: blur(14px);
-  border: 1px solid var(--borda-vidro);
-  border-top: 6px solid var(--amarelo);
-}
-
-.backup__titulo {
-  font-family: var(--fonte-titulo);
-  font-size: 1.1rem;
-  margin-bottom: 0.25rem;
-}
-
-.backup__texto {
-  font-size: 0.9rem;
-  margin-bottom: 0.9rem;
-}
-
-.backup__botoes {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-}
-
-.backup__aviso {
-  margin-top: 0.75rem;
-  font-size: 0.9rem;
-  color: var(--ciano);
-}
-
-.backup__aviso:empty {
-  display: none;
-}
-
-/* Filtro de período do wrapped */
-.filtro {
-  display: grid;
-  gap: 0.3rem;
-  margin-bottom: 1rem;
-  font-weight: 500;
-}
-
-.filtro select {
-  font: inherit;
-  color: var(--texto);
-  color-scheme: dark;
-  background: rgba(11, 7, 32, 0.55);
-  border: 2px solid var(--ciano);
-  padding: 0.65rem 0.9rem;
-  box-shadow: 0 0 14px rgba(25, 227, 255, 0.35);
-}
-
-/* Etapa 2: minutos, gêneros e playlist */
-.bloco--minutos {
-  background: linear-gradient(135deg, var(--violeta), #3d7bff);
-  border-color: var(--texto);
-  border-top-color: var(--ciano);
-  box-shadow: 0 0 30px rgba(123, 60, 255, 0.6);
-}
-
-.bloco__numero--minutos {
-  font-size: clamp(2.25rem, 11vw, 3.25rem);
-  line-height: 1.05;
-}
-
-/* posições com 3 dígitos (até 100) precisam de mais largura */
-.ranking li::before {
-  width: auto;
-  min-width: 1.75rem;
-  padding-inline: 0.35rem;
-}
-
+/* ----- Playlist (as 100 mais ouvidas) ----- */
 .playlist__titulo {
   cursor: pointer;
   margin-bottom: 0;
@@ -754,155 +1093,7 @@ body:has(#wrapped:target) .menu__link[href="#registrar"] {
   margin-bottom: 0.75rem;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  #wrapped:target .bloco:nth-child(7) { animation-delay: 0.6s; }
-  #wrapped:target .bloco:nth-child(8) { animation-delay: 0.7s; }
-  #wrapped:target .bloco:nth-child(9) { animation-delay: 0.8s; }
-}
-
-/* ===== Etapa 3: idade de escuta e quiz ===== */
-
-/* telas: o quiz também esconde a tela de registrar */
-body:has(#quiz:target) #registrar {
-  display: none;
-}
-
-#quiz:target {
-  display: block;
-}
-
-/* menu com 3 links */
-.menu__link {
-  padding-inline: 0.5rem;
-}
-
-body:has(#quiz:target) .menu__link[href="#registrar"] {
-  background: transparent;
-  border-color: var(--borda-vidro);
-  box-shadow: none;
-  color: var(--texto);
-}
-
-body:has(#quiz:target) .menu__link[href="#quiz"] {
-  background: var(--magenta);
-  border-color: var(--magenta);
-  color: #fff;
-  box-shadow: 0 0 18px rgba(255, 46, 147, 0.8);
-}
-
-/* bloco de idade */
-.bloco__detalhe {
-  margin-top: 0.4rem;
-  font-weight: 500;
-}
-
-.bloco__nota {
-  margin-top: 0.75rem;
-  font-size: 0.8rem;
-  opacity: 0.8;
-}
-
-.idade__campo {
-  display: grid;
-  gap: 0.3rem;
-  margin-top: 0.9rem;
-  font-size: 0.9rem;
-  font-weight: 700;
-  max-width: 16rem;
-}
-
-.idade__campo input {
-  font: inherit;
-  color: var(--fundo);
-  background: rgba(255, 255, 255, 0.85);
-  border: 2px solid var(--fundo);
-  padding: 0.5rem 0.8rem;
-}
-
-/* quiz */
-.quiz__cartao {
-  background: var(--vidro);
-  -webkit-backdrop-filter: blur(14px);
-  backdrop-filter: blur(14px);
-  border: 1px solid var(--borda-vidro);
-  border-top: 6px solid var(--magenta);
-  box-shadow: 0 0 28px rgba(255, 46, 147, 0.35);
-  padding: 1.25rem;
-  display: grid;
-  gap: 1rem;
-  justify-items: start;
-}
-
-.quiz__progresso {
-  font-weight: 700;
-  color: var(--ciano);
-}
-
-.quiz__pergunta {
-  font-family: var(--fonte-titulo);
-  font-size: 1.5rem;
-  line-height: 1.2;
-}
-
-.quiz__pergunta:focus {
-  outline: none;
-}
-
-.quiz__nota {
-  font-size: 0.9rem;
-  opacity: 0.85;
-}
-
-.quiz__opcoes {
-  display: grid;
-  gap: 0.75rem;
-  width: 100%;
-}
-
-.botao--opcao {
-  display: block;
-  width: 100%;
-  text-align: left;
-  background: rgba(255, 255, 255, 0.08);
-  color: var(--texto);
-  border-color: var(--borda-vidro);
-}
-
-.botao:disabled {
-  cursor: default;
-  transform: none;
-}
-
-.opcao--certa {
-  border-color: var(--ciano);
-  background: rgba(25, 227, 255, 0.2);
-  box-shadow: 0 0 18px rgba(25, 227, 255, 0.7);
-}
-
-.opcao--errada {
-  border-color: var(--magenta);
-  background: rgba(255, 46, 147, 0.25);
-}
-
-.quiz__feedback {
-  font-weight: 700;
-}
-
-.quiz__placar {
-  font-family: var(--fonte-titulo);
-  font-weight: 700;
-  font-size: clamp(3.5rem, 18vw, 5.5rem);
-  line-height: 1;
-  text-shadow: 3px 3px 0 var(--magenta), 0 0 24px rgba(25, 227, 255, 0.8);
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .quiz__cartao {
-    animation: surgir 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) both;
-  }
-}
-
-/* ===== Etapa 4: corrida dos artistas ===== */
+/* ----- Corrida dos artistas (gráfico) ----- */
 .corrida__rolagem {
   overflow-x: auto;
   margin-top: 0.75rem;
@@ -914,14 +1105,14 @@ body:has(#quiz:target) .menu__link[href="#quiz"] {
 }
 
 .corrida__grade {
-  stroke: rgba(255, 255, 255, 0.18);
+  stroke: rgba(255, 255, 255, 0.15);
   stroke-width: 1;
   stroke-dasharray: 3 4;
 }
 
 .corrida__texto {
-  fill: var(--texto);
-  font-family: var(--fonte-texto);
+  fill: #F7F4FF;
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   font-size: 12px;
 }
 
@@ -933,7 +1124,7 @@ body:has(#quiz:target) .menu__link[href="#quiz"] {
 }
 
 .corrida__marcador {
-  stroke: var(--fundo);
+  stroke: #1F1A40;
   stroke-width: 2;
 }
 
@@ -958,6 +1149,7 @@ body:has(#quiz:target) .menu__link[href="#quiz"] {
   flex: none;
 }
 
+/* tabela alternativa ("Ver em tabela") */
 .corrida__detalhes {
   margin-top: 0.75rem;
   font-size: 0.9rem;
@@ -976,7 +1168,7 @@ body:has(#quiz:target) .menu__link[href="#quiz"] {
 .corrida__tabela th,
 .corrida__tabela td {
   padding: 0.35rem 0.6rem;
-  border: 1px solid var(--borda-vidro);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   text-align: center;
   white-space: nowrap;
 }
@@ -985,53 +1177,129 @@ body:has(#quiz:target) .menu__link[href="#quiz"] {
   text-align: left;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .corrida__linha {
-    animation: tracar 1.2s ease-out var(--atraso, 0s) both;
-  }
 
-  @keyframes tracar {
-    from { stroke-dashoffset: 1; }
-    to   { stroke-dashoffset: 0; }
-  }
+/* ==========================================================================
+   10. QUIZ
+   ========================================================================== */
 
-  #wrapped:target .bloco:nth-child(10) { animation-delay: 0.9s; }
+/* ----- Cartão do quiz (faixa rosa em cima) ----- */
+.quiz__cartao {
+  display: grid;
+  gap: 1rem;
+  justify-items: start;
+  background: #1F1A40;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 6px solid #FF4FA3;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  padding: 1.25rem;
 }
 
-/* =====================================================
-   Etapa 5: apagar tudo, feedback e mais movimento
-   ===================================================== */
-
-/* ----- apagar todas ----- */
-.botao--perigo {
-  background: transparent;
-  color: var(--texto);
-  border-color: var(--magenta);
-  box-shadow: none;
+.quiz__progresso {
+  font-weight: 700;
+  color: #22D3EE;
 }
 
-.botao--perigo:hover {
-  background: rgba(255, 46, 147, 0.25);
+/* texto de apresentação e de resultado do quiz */
+.quiz__texto {
+  font-size: 1.05rem;
+  line-height: 1.55;
 }
 
-.botao--cheio {
-  background: var(--magenta);
-  color: #fff;
-  border-color: var(--magenta);
-  box-shadow: 4px 4px 0 var(--violeta), 0 0 18px rgba(255, 46, 147, 0.7);
+.quiz__pergunta {
+  font-family: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 1.5rem;
+  line-height: 1.2;
 }
 
-.botao--neutro {
-  background: transparent;
-  color: var(--texto);
-  border-color: var(--borda-vidro);
+.quiz__pergunta:focus {
+  outline: none;
 }
 
+.quiz__nota {
+  font-size: 0.9rem;
+  opacity: 0.85;
+}
+
+.quiz__opcoes {
+  display: grid;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+/* resposta certa (turquesa) e errada (rosa) */
+.opcao--certa {
+  border-color: #22D3EE;
+  background: rgba(34, 211, 238, 0.18);
+}
+
+.opcao--errada {
+  border-color: #FF4FA3;
+  background: rgba(255, 79, 163, 0.1);
+}
+
+.quiz__feedback {
+  font-weight: 700;
+}
+
+/* placar final */
+.quiz__placar {
+  font-family: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-weight: 800;
+  font-size: clamp(3.25rem, 16vw, 5rem);
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: #FFD84D;
+}
+
+
+/* ==========================================================================
+   11. BACKUP E LIMPEZA
+   ========================================================================== */
+
+.backup {
+  margin-top: 2.5rem;
+  padding: 1rem;
+  background: #1F1A40;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 6px solid #FFD84D;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.backup__titulo {
+  font-family: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 1.1rem;
+  margin-bottom: 0.25rem;
+}
+
+.backup__texto {
+  font-size: 0.9rem;
+  margin-bottom: 0.9rem;
+}
+
+.backup__botoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+/* mensagem de resultado (exportado, importado...) */
+.backup__aviso {
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #22D3EE;
+}
+
+.backup__aviso:empty {
+  display: none;
+}
+
+/* caixa "Apagar tudo?" */
 .backup__confirmar {
   margin-top: 1rem;
   padding: 1rem;
-  border: 2px dashed var(--magenta);
-  background: rgba(255, 46, 147, 0.12);
+  border: 2px dashed #FF4FA3;
+  background: rgba(255, 79, 163, 0.06);
 }
 
 .backup__confirmar p {
@@ -1043,7 +1311,65 @@ body:has(#quiz:target) .menu__link[href="#quiz"] {
   display: none;
 }
 
-/* ----- aviso rápido ----- */
+
+/* ==========================================================================
+   12. MENU INFERIOR
+   ========================================================================== */
+
+.menu {
+  position: fixed;
+  inset: auto 0 0 0;
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  background: #1F1A40;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
+  padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom, 0px));
+}
+
+.menu__link {
+  flex: 1;
+  max-width: 12rem;
+  text-align: center;
+  font-weight: 700;
+  color: #F7F4FF;
+  text-decoration: none;
+  border: 2px solid rgba(255, 255, 255, 0.18);
+  padding: 0.55rem 0.5rem;
+}
+
+/* ----- Link ativo: "Registrar" por padrão; "Wrapped" ou "Quiz" quando a tela abre ----- */
+.menu__link[href="#registrar"],
+body:has(#wrapped:target) .menu__link[href="#wrapped"] {
+  background: #FF4FA3;
+  border-color: #FF4FA3;
+  color: #14102B;
+}
+
+body:has(#wrapped:target) .menu__link[href="#registrar"] {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.18);
+  color: #F7F4FF;
+}
+
+body:has(#quiz:target) .menu__link[href="#registrar"] {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.18);
+  color: #F7F4FF;
+}
+
+body:has(#quiz:target) .menu__link[href="#quiz"] {
+  background: #FF4FA3;
+  border-color: #FF4FA3;
+  color: #14102B;
+}
+
+
+/* ==========================================================================
+   13. AVISO RÁPIDO (TOAST)
+   ========================================================================== */
+
 .toast {
   position: fixed;
   left: 50%;
@@ -1051,10 +1377,10 @@ body:has(#quiz:target) .menu__link[href="#quiz"] {
   z-index: 10;
   max-width: calc(100vw - 2rem);
   padding: 0.6rem 1.1rem;
-  background: var(--amarelo);
-  color: var(--fundo);
+  background: #FFD84D;
+  color: #14102B;
   font-weight: 700;
-  box-shadow: 4px 4px 0 var(--magenta), 0 0 22px rgba(255, 225, 77, 0.6);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
   opacity: 0;
   pointer-events: none;
   transform: translate(-50%, 16px);
@@ -1065,7 +1391,13 @@ body:has(#quiz:target) .menu__link[href="#quiz"] {
   transform: translate(-50%, 0);
 }
 
-/* ----- quadrados flutuantes no fundo ----- */
+
+/* ==========================================================================
+   14. FUNDO DECORATIVO (8 quadrados coloridos e lisos que sobem)
+   Cada quadrado tem: left (posição), bottom (altura), width/height (tamanho)
+   e a cor de preenchimento. A velocidade de cada um está na seção 15.
+   ========================================================================== */
+
 .fundo {
   position: fixed;
   inset: 0;
@@ -1076,87 +1408,137 @@ body:has(#quiz:target) .menu__link[href="#quiz"] {
 
 .fundo span {
   position: absolute;
-  left: var(--x);
-  bottom: var(--y);
-  width: var(--t);
-  height: var(--t);
-  border: 2px solid var(--c);
-  box-shadow: 0 0 14px var(--c), inset 0 0 14px var(--c);
-  opacity: 0.35;
+  opacity: 0.4;
 }
 
-.fundo span:nth-child(1) { --x: 6%;  --y: 12%; --t: 38px; --c: var(--magenta); --d: 26s; --a: -4s; }
-.fundo span:nth-child(2) { --x: 20%; --y: 55%; --t: 22px; --c: var(--ciano);   --d: 34s; --a: -18s; }
-.fundo span:nth-child(3) { --x: 34%; --y: 28%; --t: 54px; --c: var(--amarelo); --d: 40s; --a: -9s; }
-.fundo span:nth-child(4) { --x: 48%; --y: 70%; --t: 28px; --c: var(--violeta); --d: 30s; --a: -22s; }
-.fundo span:nth-child(5) { --x: 62%; --y: 18%; --t: 44px; --c: var(--ciano);   --d: 36s; --a: -14s; }
-.fundo span:nth-child(6) { --x: 76%; --y: 48%; --t: 30px; --c: var(--magenta); --d: 28s; --a: -2s; }
-.fundo span:nth-child(7) { --x: 88%; --y: 8%;  --t: 50px; --c: var(--violeta); --d: 38s; --a: -26s; }
-.fundo span:nth-child(8) { --x: 94%; --y: 62%; --t: 24px; --c: var(--amarelo); --d: 32s; --a: -11s; }
+.fundo span:nth-child(1) { left: 6%;  bottom: 12%; width: 38px; height: 38px; background: #FF4FA3; }
+.fundo span:nth-child(2) { left: 20%; bottom: 55%; width: 22px; height: 22px; background: #22D3EE; }
+.fundo span:nth-child(3) { left: 34%; bottom: 28%; width: 54px; height: 54px; background: #FFD84D; }
+.fundo span:nth-child(4) { left: 48%; bottom: 70%; width: 28px; height: 28px; background: #A78BFA; }
+.fundo span:nth-child(5) { left: 62%; bottom: 18%; width: 44px; height: 44px; background: #22D3EE; }
+.fundo span:nth-child(6) { left: 76%; bottom: 48%; width: 30px; height: 30px; background: #FF4FA3; }
+.fundo span:nth-child(7) { left: 88%; bottom: 8%;  width: 50px; height: 50px; background: #A78BFA; }
+.fundo span:nth-child(8) { left: 94%; bottom: 62%; width: 24px; height: 24px; background: #FF9F43; }
 
-/* ----- esqueleto da busca ----- */
-.faixa--esqueleto {
-  grid-template-columns: 3.5rem 1fr;
+
+/* ==========================================================================
+   15. ANIMAÇÕES E MOVIMENTO
+   Tudo aqui só roda se a pessoa NÃO pediu para reduzir movimento no aparelho.
+   Para desligar todas as animações, apague o bloco "no-preference" abaixo.
+   ========================================================================== */
+
+/* ----- Quem pediu menos movimento: botões sem transição ----- */
+@media (prefers-reduced-motion: reduce) {
+  .botao {
+    transition: none;
+  }
 }
 
-.esqueleto__capa {
-  width: 3.5rem;
-  height: 3.5rem;
-}
-
-.esqueleto__info {
-  display: grid;
-  gap: 0.5rem;
-}
-
-.esqueleto__capa,
-.esqueleto__linha {
-  display: block;
-  background: rgba(255, 255, 255, 0.14);
-}
-
-.esqueleto__linha {
-  height: 0.8rem;
-  width: 85%;
-}
-
-.esqueleto__linha--curta {
-  width: 50%;
-}
-
-/* ----- barras de proporção nos rankings ----- */
-.ranking li {
-  position: relative;
-  padding-bottom: 0.5rem;
-}
-
-.ranking__barra {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--magenta), var(--ciano));
-  box-shadow: 0 0 8px var(--magenta);
-  transform-origin: left;
-  transform: scaleX(var(--proporcao, 0));
-}
-
-/* ===== Movimento (só para quem não pediu menos movimento) ===== */
 @media (prefers-reduced-motion: no-preference) {
 
-  /* quadrados subindo e girando */
-  .fundo span {
-    bottom: -14vh;
-    animation: subir var(--d) linear var(--a) infinite;
+  /* ----- 1. Equalizador: barras batendo em ritmos diferentes ----- */
+  .equalizador span {
+    animation: batida 0.9s ease-in-out infinite alternate;
   }
+
+  .equalizador span:nth-child(2) { animation-duration: 0.6s; animation-delay: -0.2s; }
+  .equalizador span:nth-child(3) { animation-duration: 1.1s; animation-delay: -0.5s; }
+  .equalizador span:nth-child(4) { animation-duration: 0.75s; animation-delay: -0.1s; }
+  .equalizador span:nth-child(5) { animation-duration: 0.95s; animation-delay: -0.7s; }
+
+  @keyframes batida {
+    from { transform: scaleY(0.2); }
+    to   { transform: scaleY(1); }
+  }
+
+  /* ----- 2. Título: aparece subindo de leve ao abrir ----- */
+  .topo__titulo {
+    animation: aparecer 0.6s ease-out both;
+  }
+
+  @keyframes aparecer {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ----- 3. Músicas: entram uma após a outra quando a lista aparece ----- */
+  .faixa {
+    animation: entrar 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+
+  .faixa:nth-child(2) { animation-delay: 0.06s; }
+  .faixa:nth-child(3) { animation-delay: 0.12s; }
+  .faixa:nth-child(4) { animation-delay: 0.18s; }
+  .faixa:nth-child(5) { animation-delay: 0.24s; }
+  .faixa:nth-child(6) { animation-delay: 0.3s; }
+  .faixa:nth-child(n + 7) { animation-delay: 0.36s; }
+
+  @keyframes entrar {
+    from { opacity: 0; transform: translateX(-24px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  /* ----- 4. Registro: o formulário desliza ao abrir ----- */
+  .registro[open] .registro__corpo {
+    animation: abrir 0.25s ease-out;
+  }
+
+  @keyframes abrir {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ----- 5. Wrapped: os blocos surgem em sequência a cada vez que a tela abre ----- */
+  #wrapped:target .bloco {
+    animation: surgir 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+
+  #wrapped:target .bloco:nth-child(2) { animation-delay: 0.1s; }
+  #wrapped:target .bloco:nth-child(3) { animation-delay: 0.2s; }
+  #wrapped:target .bloco:nth-child(4) { animation-delay: 0.3s; }
+  #wrapped:target .bloco:nth-child(5) { animation-delay: 0.4s; }
+  #wrapped:target .bloco:nth-child(6) { animation-delay: 0.5s; }
+  #wrapped:target .bloco:nth-child(7) { animation-delay: 0.6s; }
+  #wrapped:target .bloco:nth-child(8) { animation-delay: 0.7s; }
+  #wrapped:target .bloco:nth-child(9) { animation-delay: 0.8s; }
+  #wrapped:target .bloco:nth-child(10) { animation-delay: 0.9s; }
+
+  @keyframes surgir {
+    from { opacity: 0; transform: scale(0.92) translateY(14px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  /* ----- 6. Quiz: o cartão surge a cada pergunta ----- */
+  .quiz__cartao {
+    animation: surgir 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+
+  /* ----- 7. Corrida dos artistas: as linhas se desenham (atraso vem do JavaScript) ----- */
+  .corrida__linha {
+    animation: tracar 1.2s ease-out 0s both;
+  }
+
+  @keyframes tracar {
+    from { stroke-dashoffset: 1; }
+    to   { stroke-dashoffset: 0; }
+  }
+
+  /* ----- 8. Quadrados do fundo: sobem girando (duração e atraso de cada um) ----- */
+  .fundo span:nth-child(1) { bottom: -14vh; animation: subir 26s linear -4s infinite; }
+  .fundo span:nth-child(2) { bottom: -14vh; animation: subir 34s linear -18s infinite; }
+  .fundo span:nth-child(3) { bottom: -14vh; animation: subir 40s linear -9s infinite; }
+  .fundo span:nth-child(4) { bottom: -14vh; animation: subir 30s linear -22s infinite; }
+  .fundo span:nth-child(5) { bottom: -14vh; animation: subir 36s linear -14s infinite; }
+  .fundo span:nth-child(6) { bottom: -14vh; animation: subir 28s linear -2s infinite; }
+  .fundo span:nth-child(7) { bottom: -14vh; animation: subir 38s linear -26s infinite; }
+  .fundo span:nth-child(8) { bottom: -14vh; animation: subir 32s linear -11s infinite; }
 
   @keyframes subir {
     from { transform: translateY(0) rotate(0deg); }
     to   { transform: translateY(-130vh) rotate(200deg); }
   }
 
-  /* troca de tela */
+  /* ----- 9. Troca de tela ----- */
   .tela {
     animation: trocar 0.4s ease-out;
   }
@@ -1171,7 +1553,7 @@ body:has(#quiz:target) .menu__link[href="#quiz"] {
     animation-fill-mode: backwards;
   }
 
-  /* a lista de escutas só anima o item novo e o que está saindo */
+  /* ----- 10. Lista de escutas: só anima o item novo e o que está saindo ----- */
   #escutas .faixa:not(.faixa--nova) {
     animation: none;
   }
@@ -1182,7 +1564,7 @@ body:has(#quiz:target) .menu__link[href="#quiz"] {
 
   @keyframes destacar {
     from { opacity: 0; transform: translateY(-14px) scale(0.97); }
-    40%  { opacity: 1; transform: none; box-shadow: 0 0 0 3px var(--amarelo), 0 0 40px var(--amarelo); }
+    40%  { opacity: 1; transform: none; box-shadow: 0 0 0 3px #FFD84D; }
   }
 
   #escutas .faixa.faixa--saindo {
@@ -1193,10 +1575,10 @@ body:has(#quiz:target) .menu__link[href="#quiz"] {
     to { opacity: 0; transform: translateX(48px) scale(0.95); }
   }
 
-  /* esqueleto pulsando */
+  /* ----- 11. Esqueleto da busca pulsando ----- */
   .esqueleto__capa,
   .esqueleto__linha {
-    background-image: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.28), transparent);
+    background-image: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.18), transparent);
     background-size: 200% 100%;
     animation: brilhar 1.2s linear infinite;
   }
@@ -1206,7 +1588,7 @@ body:has(#quiz:target) .menu__link[href="#quiz"] {
     to   { background-position: -200% 0; }
   }
 
-  /* rankings: linhas entram em sequência e as barras crescem */
+  /* ----- 12. Rankings: linhas entram em sequência e as barras crescem ----- */
   #wrapped:target .ranking li {
     animation: entrar 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
   }
@@ -1224,26 +1606,29 @@ body:has(#quiz:target) .menu__link[href="#quiz"] {
     from { transform: scaleX(0); }
   }
 
-  /* aviso rápido */
+  /* ----- 13. Transições suaves (toast, menu, cartões e blocos) ----- */
   .toast {
     transition: opacity 0.25s, transform 0.25s;
   }
 
-  /* menu e botões respondem ao toque */
   .menu__link {
-    transition: background-color 0.25s, border-color 0.25s, box-shadow 0.25s, color 0.25s, transform 0.15s;
+    transition: background-color 0.25s, border-color 0.25s, color 0.25s, transform 0.15s;
+  }
+
+  .menu__link:hover {
+    background-color: rgba(255, 255, 255, 0.06);
   }
 
   .menu__link:active {
-    transform: scale(0.94);
+    transform: scale(0.96);
   }
 
   .faixa,
   .bloco {
-    transition: transform 0.18s, box-shadow 0.18s;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
   }
 
-  /* quiz: acerto pulsa, erro treme */
+  /* ----- 14. Quiz: acerto pulsa, erro treme ----- */
   .opcao--certa {
     animation: pulsar 0.5s ease-out;
   }
@@ -1253,7 +1638,7 @@ body:has(#quiz:target) .menu__link[href="#quiz"] {
   }
 
   @keyframes pulsar {
-    40% { transform: scale(1.04); }
+    40% { transform: scale(1.03); }
   }
 
   @keyframes tremer {
@@ -1264,61 +1649,28 @@ body:has(#quiz:target) .menu__link[href="#quiz"] {
   }
 }
 
-/* levantar ao passar o mouse (só em aparelhos com mouse) */
+/* ----- Levantar de leve ao passar o mouse (só em aparelhos com mouse) ----- */
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
-  .faixa:not(.faixa--esqueleto):hover {
-    transform: translate(-3px, -3px);
-    box-shadow: 5px 5px 0 var(--cor), 0 0 30px color-mix(in srgb, var(--cor) 60%, transparent);
-  }
-
+  .faixa:not(.faixa--esqueleto):hover,
   #wrapped .bloco:hover {
-    transform: translateY(-4px);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
   }
 }
 
-/* =====================================================
-   Etapa 6: grid do wrapped e seleção de várias músicas
-   ===================================================== */
 
-/* ----- grid do wrapped por áreas ----- */
-.bloco--horas { grid-area: horas; }
-.bloco--minutos { grid-area: minutos; }
-.bloco--personalidade { grid-area: personalidade; }
-.bloco--idade { grid-area: idade; }
-.bloco--artistas { grid-area: artistas; }
-.bloco--musicas { grid-area: musicas; }
-.bloco--corrida { grid-area: corrida; }
-.bloco--albuns { grid-area: albuns; }
-.bloco--generos { grid-area: generos; }
-.bloco--playlist { grid-area: playlist; }
+/* ==========================================================================
+   16. RESPONSIVO (telas maiores)
+   ========================================================================== */
 
-/* celular: 2 colunas, o resumo em cima e os rankings empilhados */
-.painel {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  grid-template-areas:
-    "horas horas"
-    "minutos personalidade"
-    "idade idade"
-    "artistas artistas"
-    "musicas musicas"
-    "corrida corrida"
-    "albuns albuns"
-    "generos generos"
-    "playlist playlist";
+/* ----- A partir de 40rem (~640px): mais espaço embaixo para o menu ----- */
+@media (min-width: 40rem) {
+  body {
+    padding-bottom: 6rem;
+  }
 }
 
-.bloco--horas {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-/* o bloco do wrapped usa a largura toda do conteúdo */
-.bloco {
-  min-width: 0;
-}
-
-/* tablet e computador: a tela do wrapped fica mais larga, em 4 colunas */
+/* ----- A partir de 48rem (~768px): o wrapped fica mais largo, em 4 colunas ----- */
 @media (min-width: 48rem) {
   body:has(#wrapped:target) .topo,
   body:has(#wrapped:target) main {
@@ -1338,251 +1690,6 @@ body:has(#quiz:target) .menu__link[href="#quiz"] {
   }
 
   .bloco--horas .bloco__numero {
-    font-size: clamp(5rem, 11vw, 8.5rem);
+    font-size: clamp(4.5rem, 9vw, 7rem);
   }
-}
-
-/* ----- seleção de várias músicas ----- */
-.resultados-area {
-  position: relative;
-}
-
-.selecao {
-  position: sticky;
-  top: calc(0.5rem + env(safe-area-inset-top, 0px));
-  z-index: 5;
-  display: grid;
-  gap: 0.75rem;
-  margin-top: 1rem;
-  padding: 0.9rem;
-  background: rgba(11, 7, 32, 0.78);
-  -webkit-backdrop-filter: blur(16px);
-  backdrop-filter: blur(16px);
-  border: 1px solid var(--borda-vidro);
-  border-left: 6px solid var(--ciano);
-  box-shadow: 0 0 22px rgba(25, 227, 255, 0.35);
-}
-
-.selecao[hidden] {
-  display: none;
-}
-
-.selecao__linha {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 0.75rem;
-}
-
-.selecao__contagem {
-  font-weight: 700;
-  color: var(--ciano);
-}
-
-.selecao__data {
-  display: grid;
-  gap: 0.25rem;
-  font-size: 0.85rem;
-  font-weight: 500;
-}
-
-.selecao__data input {
-  font: inherit;
-  color: var(--texto);
-  color-scheme: dark;
-  background: rgba(11, 7, 32, 0.55);
-  border: 2px solid var(--ciano);
-  padding: 0.5rem 0.7rem;
-}
-
-.selecao__aviso {
-  color: var(--amarelo);
-  font-size: 0.9rem;
-  font-weight: 500;
-}
-
-.selecao__aviso:empty {
-  display: none;
-}
-
-/* caixa de seleção quadrada (o campo de verdade fica invisível por cima) */
-.selecao__todas,
-.faixa__selecionar {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-  cursor: pointer;
-  font-weight: 700;
-}
-
-.selecao__todas input,
-.faixa__selecionar input {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  opacity: 0;
-  cursor: pointer;
-}
-
-.marca {
-  position: relative;
-  display: grid;
-  place-items: center;
-  flex: none;
-  width: 1.5rem;
-  height: 1.5rem;
-  border: 2px solid var(--ciano);
-  background: rgba(11, 7, 32, 0.55);
-  color: var(--fundo);
-  font-weight: 700;
-  line-height: 1;
-}
-
-input:checked + .marca {
-  background: var(--ciano);
-  box-shadow: 0 0 14px var(--ciano);
-}
-
-input:checked + .marca::after {
-  content: "✓";
-}
-
-input:indeterminate + .marca {
-  background: var(--ciano);
-}
-
-input:indeterminate + .marca::after {
-  content: "–";
-}
-
-input:focus-visible + .marca {
-  outline: 3px solid var(--amarelo);
-  outline-offset: 3px;
-}
-
-/* a área de toque da caixa na lista é maior que o desenho */
-.faixa__selecionar {
-  justify-content: center;
-  min-width: 2.5rem;
-  min-height: 2.5rem;
-}
-
-.faixa--selecionavel {
-  grid-template-columns: auto 3.5rem 1fr auto;
-  column-gap: 0.5rem;
-}
-
-.faixa--selecionada {
-  border-color: var(--ciano);
-  box-shadow: 0 0 26px rgba(25, 227, 255, 0.55);
-}
-
-/* ===== Etapa 7: selecionar várias escutas para remover ===== */
-.escutas-area {
-  position: relative;
-}
-
-/* aqui a seleção é para apagar, então usa o magenta em vez do ciano */
-.selecao--remocao {
-  border-left-color: var(--magenta);
-  box-shadow: 0 0 22px rgba(255, 46, 147, 0.35);
-}
-
-.selecao--remocao .selecao__contagem {
-  color: var(--magenta);
-}
-
-.selecao--remocao .marca,
-#escutas .marca {
-  border-color: var(--magenta);
-}
-
-.selecao--remocao input:checked + .marca,
-.selecao--remocao input:indeterminate + .marca,
-#escutas input:checked + .marca {
-  background: var(--magenta);
-  color: #fff;
-  box-shadow: 0 0 14px var(--magenta);
-}
-
-#escutas .faixa--selecionada {
-  border-color: var(--magenta);
-  box-shadow: 0 0 26px rgba(255, 46, 147, 0.55);
-}
-
-/* ===== Etapa 8: seleção que atravessa as buscas ===== */
-.selecao__nota {
-  font-size: 0.8rem;
-  opacity: 0.8;
-}
-
-.selecao__botoes {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.6rem;
-}
-
-.selecao__todas:has(input:disabled) {
-  opacity: 0.45;
-  cursor: default;
-}
-
-.selecao__detalhes {
-  font-size: 0.9rem;
-}
-
-.selecao__detalhes[hidden] {
-  display: none;
-}
-
-.selecao__detalhes summary {
-  cursor: pointer;
-  font-weight: 700;
-  color: var(--ciano);
-}
-
-.selecao__lista {
-  display: grid;
-  gap: 0.35rem;
-  margin-top: 0.6rem;
-  max-height: 11rem;
-  overflow-y: auto;
-}
-
-.selecao__item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  padding: 0.3rem 0.3rem 0.3rem 0.6rem;
-  background: rgba(255, 255, 255, 0.07);
-  border-left: 3px solid var(--ciano);
-}
-
-.selecao__nome {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.selecao__tirar {
-  flex: none;
-  width: 2rem;
-  height: 2rem;
-  font: inherit;
-  font-weight: 700;
-  color: var(--texto);
-  background: transparent;
-  border: 1px solid var(--borda-vidro);
-  cursor: pointer;
-}
-
-.selecao__tirar:hover {
-  border-color: var(--magenta);
-  color: var(--magenta);
 }
