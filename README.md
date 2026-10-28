@@ -4,7 +4,7 @@
 
 # 🎧 Meu Wrapped
 
-### O seu ano em música, do seu jeito. Sem login, sem algoritmo, sem pressa.
+### Registre o que você ouve e veja o seu ano em música. Sem login: tudo fica no seu navegador.
 
 <img alt="HTML5" src="https://img.shields.io/badge/HTML5-14102B?style=for-the-badge&logo=html5&logoColor=FFD84D">
 <img alt="CSS3" src="https://img.shields.io/badge/CSS3-14102B?style=for-the-badge&logo=css3&logoColor=22D3EE">
@@ -26,9 +26,9 @@
 
 ## 🎵 O que é isso?
 
-Você já abriu o *Wrapped* de algum app de música e pensou: **"e as músicas que eu ouvi fora dele?"**
+Todo fim de ano os apps de música soltam o Wrapped deles, mas ele só conta o que você ouviu ali dentro. Eu queria um que contasse o resto também.
 
-O **Meu Wrapped** resolve isso. Você busca uma música, registra quanto ouviu (completa ou só uns minutinhos) e o app monta o seu resumo: horas ouvidas, artistas favoritos, gêneros, até a sua *personalidade musical*. No fim, ainda tem um quiz para ver se você conhece mesmo o seu próprio gosto. 😏
+No **Meu Wrapped** você busca uma música, registra quanto ouviu (completa ou só alguns minutos) e o site monta o resumo: horas ouvidas, artistas favoritos, gêneros e até uma *personalidade musical*. No fim tem um quiz para ver se você conhece o seu próprio gosto.
 
 > Tudo fica **só no seu navegador**. Nenhuma conta, nenhum servidor guardando o que você ouve.
 
@@ -60,7 +60,7 @@ O **Meu Wrapped** resolve isso. Você busca uma música, registra quanto ouviu (
 Dá para filtrar por **ano** ou ver **todos os anos** juntos.
 
 ### 🧩 Quiz do seu ano
-Perguntas geradas **com os seus próprios dados**: qual foi a sua música mais ouvida, o artista número 1, o álbum e o gênero favoritos. Errar dói mais quando a resposta é sobre você.
+As perguntas são geradas **com os seus próprios dados**: qual foi a sua música mais ouvida, o artista número 1, o álbum e o gênero favoritos.
 
 ### 🌎 Extras
 - 🇧🇷🇺🇸 Site em **português e inglês**, com troca em um clique
@@ -82,18 +82,11 @@ No iPhone, o navegador bloqueava o acesso direto do site à API do iTunes, enqua
 
 ---
 
-## 🤖 Como foi feito: vibe coding
+## 🤖 Como foi feito
 
-Este projeto nasceu de **vibe coding**: em vez de escrever cada linha na mão, eu descrevi em português o que queria (uma tela de busca, um wrapped com ranking, um quiz, versão em inglês, cores mais "pop") e fui conversando com IAs para transformar as ideias em código. As ferramentas foram o **Gemini** e o **Claude**.
+Esse projeto foi feito com vibe coding, usando **Gemini** e **Claude**. Eu explicava em português como queria cada parte (a busca, o wrapped, o quiz, a versão em inglês, as cores) e as IAs escreviam o código. Eu testava, via o que não estava do jeito que eu queria e pedia ajuste, até ficar como eu imaginei.
 
-O processo foi mais ou menos assim:
-
-1. 💡 Eu tinha a ideia e explicava o que queria ver na tela
-2. 🤖 A IA gerava ou ajustava o código
-3. 🧪 Eu testava de verdade, no PC e no celular
-4. 🐛 Quando algo quebrava (como a busca que não funcionava no iPhone), eu levava o erro de volta e a gente corrigia junto
-
-Foi assim que o app ganhou ajustes de visual, tradução para inglês, backup das escutas e a função da Vercel que faz a busca funcionar no iPhone. A IA ajuda a escrever, mas as decisões, os testes e a caça aos bugs continuam sendo de quem usa. 😉
+O que mais deu trabalho foi o iPhone: a busca funcionava no PC e no Android, mas no meu celular não. Fui testando, levei de volta o erro que aparecia na tela e a solução foi a função da Vercel que está na pasta `api`.
 
 ---
 
@@ -153,8 +146,8 @@ meu-wrapped/
 
 <div align="center">
 
-Feito com 🎶 e muita busca de música por **[Luis Eduardo](https://github.com/luizgarcg)**
+Feito por **[Luis Eduardo](https://github.com/luizgarcg)**
 
-*Se este projeto te fez ouvir uma música antiga hoje, ele já cumpriu o papel.*
+Achou algum bug? Me avisa.
 
 </div>
