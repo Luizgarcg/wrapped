@@ -1,67 +1,144 @@
-# 🎵 Meu Wrapped
+<div align="center">
 
-![Versão](https://img.shields.io/badge/version-1.0.0-ff4fa3)
-![Licença](https://img.shields.io/badge/license-MIT-22d3ee)
-![Status](https://img.shields.io/badge/status-concluído-4ade9a)
+<img src="favicon.svg" alt="Logo do Meu Wrapped" width="110" height="110">
 
-O **Meu Wrapped** é uma aplicação web interativa e responsiva criada para registrar suas escutas musicais e gerar uma retrospectiva anual personalizada com métricas de tempo, ranking de artistas/músicas/gêneros, análise de personalidade musical, estimativa de idade de escuta, gráficos de evolução e um quiz dinâmico sobre o seu ano em música.
+# 🎧 Meu Wrapped
 
----
+### O seu ano em música, do seu jeito. Sem login, sem algoritmo, sem pressa.
 
-## 🌟 Destaques do Projeto
+<img alt="HTML5" src="https://img.shields.io/badge/HTML5-14102B?style=for-the-badge&logo=html5&logoColor=FFD84D">
+<img alt="CSS3" src="https://img.shields.io/badge/CSS3-14102B?style=for-the-badge&logo=css3&logoColor=22D3EE">
+<img alt="JavaScript" src="https://img.shields.io/badge/JavaScript-14102B?style=for-the-badge&logo=javascript&logoColor=FFD84D">
+<img alt="Vercel" src="https://img.shields.io/badge/Vercel-14102B?style=for-the-badge&logo=vercel&logoColor=A78BFA">
+<img alt="Idiomas" src="https://img.shields.io/badge/PT%20%7C%20EN-14102B?style=for-the-badge&logoColor=white">
 
-- **Sincronização com API em Tempo Real:** Integração direta com a API pública do iTunes para busca de faixas, álbuns, capas e durações oficiais.
-- **Suporte Multilíngue (i18n):** Alternador de idioma dinâmico em **Português (PT)** e **Inglês (EN)** sem necessidade de recarregar a página.
-- **Visual Pop Escuro:** Design limpo e moderno com estética vibrante, transições suaves e tipografia moderna (*Plus Jakarta Sans* e *Inter*), sem depender de variáveis CSS para facilitar customizações manuais.
-- **Gráfico SVG Dinâmico:** Gráfico interativo da *"Corrida dos Artistas"* construído via SVG nativo para acompanhar a evolução mensal dos seus 5 artistas favoritos.
-- **Privacidade & Backup Local:** Todos os dados ficam salvos exclusivamente no `localStorage` do navegador do usuário. Inclui exportação e importação de backups em formato JSON.
-- **Quiz Personalizado:** Pergunta sobre o seu ano com base nos seus dados reais gravados no aplicativo.
-- **Design Mobile-First:** Totalmente responsivo e otimizado para celulares, tablets e desktops.
+**[▶ Abrir o app](https://luizgarcg.github.io/wrapped/)**
 
----
+```
+      ▂ ▅ █ ▆ ▃        ▃ ▆ █ ▅ ▂
+   ▂ ▅ █ █ █ █ ▅ ▂  ▂ ▅ █ █ █ █ ▅ ▂
+```
 
-## 🚀 Funcionalidades
-
-### 1. Registrar Escutas
-- Busca de músicas e artistas em tempo real.
-- Registro por música completa ou minutos personalizados ouvida.
-- Seleção múltipla para registro em lote.
-- Histórico de escutas ordenado com opção de exclusão individual ou em lote.
-
-### 2. Painel Wrapped (Retrospectiva)
-- **Métricas:** Total de horas e minutos ouvidos.
-- **Personalidade Musical:** Algoritmo que analisa a diversidade e épocas das suas escutas (ex: *Nostálgico*, *Fiel*, *Explorador*, *Eclético*).
-- **Idade de Escuta:** Estimativa da faixa etária baseada na época das músicas consumidas em comparação com a idade real do usuário.
-- **Top Rankings:** Posição e tempo acumulado de Top Artistas, Top Músicas, Top Álbuns e Principais Gêneros.
-- **Corrida dos Artistas:** Gráfico de posições acumuladas mês a mês.
-- **Playlist Top 100:** Lista expansível das faixas mais tocadas no período selecionado.
-
-### 3. Quiz do Seu Ano
-- Perguntas geradas dinamicamente sobre suas estatísticas reais.
-- Sistema de pontuação, feedback visual imediato e resultado final com opção de jogar novamente.
-
-### 4. Gerenciamento de Dados
-- Exportação de dados do histórico para arquivo `.json`.
-- Importação e mesclagem de históricos sem duplicação de IDs.
-- Opção de limpeza completa com confirmação de segurança.
+</div>
 
 ---
 
-## 🛠️ Tecnologias Utilizadas
+## 🎵 O que é isso?
 
-- **HTML5:** Estrutura semântica e acessível (com uso de `data-attributes` para tradução).
-- **CSS3:** Estilização responsiva em CSS puro, sem uso de variáveis, com animações suaves, suporte a `prefers-reduced-motion` e layout em CSS Grid/Flexbox.
-- **JavaScript (ES6+):** Código assíncrono (`fetch`, `async/await`), manipulação dinâmica do DOM, cálculos estatísticos e renderização de SVG.
-- **iTunes Search API:** Consulta pública de metadados de mídia.
-- **Google Fonts:** Famílias tipográficas *Plus Jakarta Sans* e *Inter*.
+Você já abriu o *Wrapped* de algum app de música e pensou: **"e as músicas que eu ouvi fora dele?"**
+
+O **Meu Wrapped** resolve isso. Você busca uma música, registra quanto ouviu (completa ou só uns minutinhos) e o app monta o seu resumo: horas ouvidas, artistas favoritos, gêneros, até a sua *personalidade musical*. No fim, ainda tem um quiz para ver se você conhece mesmo o seu próprio gosto. 😏
+
+> Tudo fica **só no seu navegador**. Nenhuma conta, nenhum servidor guardando o que você ouve.
 
 ---
 
-## 📁 Estrutura de Arquivos
+## ✨ O que dá pra fazer
 
-```text
-├── index.html   # Estrutura principal da aplicação e templates HTML
-├── style.css    # Estilização completa do aplicativo (Pop Escuro)
-├── i18n.js      # Sistema de internacionalização (Português / Inglês)
-├── app.js       # Lógica do aplicativo, consumo de API, cálculos do Wrapped e Quiz
-└── README.md    # Documentação do projeto
+### 📝 Registrar
+- 🔎 **Buscar** qualquer música ou artista (a base vem da API de busca do iTunes)
+- ✅ Marcar **várias músicas de uma vez** e registrar todas juntas. A seleção continua mesmo se você fizer outra busca
+- 📅 Escolher a **data** em que ouviu
+- ⏱️ Dizer se ouviu **completa** ou informar só os **minutos** ouvidos
+- 🗑️ Remover escutas uma a uma ou em lote
+
+### 📊 O seu Wrapped
+| Bloco | O que mostra |
+|---|---|
+| ⏳ **Horas ouvidas** | O tempo total que você passou ouvindo música |
+| 🕒 **Minutos de audição** | A mesma conta, em minutos |
+| 🧠 **Personalidade** | Um perfil musical a partir do que você escuta |
+| 🎂 **Idade de escuta** | Uma estimativa pela época das suas músicas (informar o ano de nascimento é opcional) |
+| 🎤 **Top artistas** | Quem mais tocou na sua vida |
+| 🎶 **Top músicas** | As campeãs de repetição |
+| 🏁 **Corrida dos artistas** | A disputa mês a mês entre os seus 5 artistas favoritos, com o 1º lugar no topo |
+| 💿 **Álbuns mais ouvidos** | Os discos que não saem da sua cabeça |
+| 🎸 **Principais gêneros** | O que define o seu som |
+| 📜 **Playlist** | Uma lista das suas músicas mais ouvidas |
+
+Dá para filtrar por **ano** ou ver **todos os anos** juntos.
+
+### 🧩 Quiz do seu ano
+Perguntas geradas **com os seus próprios dados**: qual foi a sua música mais ouvida, o artista número 1, o álbum e o gênero favoritos. Errar dói mais quando a resposta é sobre você.
+
+### 🌎 Extras
+- 🇧🇷🇺🇸 Site em **português e inglês**, com troca em um clique
+- 💾 **Backup**: exporte as suas escutas para um arquivo e importe de volta quando quiser
+- ♿ Pensado para **acessibilidade**: respeita quem prefere menos animação e não depende só de cor nas respostas do quiz
+
+---
+
+## 🛠️ Feito com
+
+- **HTML, CSS e JavaScript puro**, sem frameworks
+- **API de busca do iTunes** para achar as músicas, capas e durações
+- **localStorage** para guardar tudo no seu navegador
+- **Função serverless na Vercel** para a busca funcionar também no iPhone
+
+### 📱 A história da pasta `api`
+
+No iPhone, o navegador bloqueava o acesso direto do site à API do iTunes, enquanto no PC e no Android tudo funcionava. A solução foi criar uma pequena função na Vercel (`api/buscar.js`): o site pergunta para ela, ela pergunta para o iTunes e devolve a resposta. Resultado: o app funciona em qualquer aparelho.
+
+---
+
+## 🚀 Como rodar
+
+**Jeito rápido (só ver o site):**
+1. Baixe o projeto
+2. Abra o `index.html` no navegador
+
+**Jeito completo (com a função da busca):**
+1. Instale o [Vercel CLI](https://vercel.com/docs/cli)
+2. Na pasta do projeto, rode:
+   ```bash
+   vercel dev
+   ```
+3. Abra o endereço que aparecer no terminal
+
+> Abrindo só o `index.html`, a busca tenta ir direto ao iTunes. Em alguns aparelhos (como o iPhone) isso não funciona. Por isso a função da Vercel existe.
+
+---
+
+## 🗂️ Estrutura
+
+```
+meu-wrapped/
+├── index.html            # a página e os moldes das telas
+├── style.css             # o visual (roxo, ciano e amarelo)
+├── app.js                # busca, registro, wrapped e quiz
+├── i18n.js               # textos em português e inglês
+├── favicon.svg           # o ícone das barrinhas
+├── favicon.ico
+├── apple-touch-icon.png
+└── api/
+    └── buscar.js         # função da Vercel que consulta o iTunes
+```
+
+---
+
+## 🔒 Privacidade
+
+- Suas escutas ficam **apenas no seu navegador** (localStorage)
+- Não existe cadastro nem login
+- Trocou de aparelho ou limpou os dados do navegador? **Exporte o backup antes**, senão as escutas somem
+
+---
+
+## 🎨 Paleta
+
+| Cor | Código |
+|---|---|
+| 🟣 Roxo | `#A78BFA` |
+| 🔵 Ciano | `#22D3EE` |
+| 🟡 Amarelo | `#FFD84D` |
+| ⚫ Fundo | `#14102B` |
+
+---
+
+<div align="center">
+
+Feito com 🎶 e muita busca de música por **[Luis Eduardo](https://github.com/luizgarcg)**
+
+*Se este projeto te fez ouvir uma música antiga hoje, ele já cumpriu o papel.*
+
+</div>
