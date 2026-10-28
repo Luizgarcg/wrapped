@@ -11,8 +11,9 @@
 <img alt="JavaScript" src="https://img.shields.io/badge/JavaScript-14102B?style=for-the-badge&logo=javascript&logoColor=FFD84D">
 <img alt="Vercel" src="https://img.shields.io/badge/Vercel-14102B?style=for-the-badge&logo=vercel&logoColor=A78BFA">
 <img alt="Idiomas" src="https://img.shields.io/badge/PT%20%7C%20EN-14102B?style=for-the-badge&logoColor=white">
+<img alt="Vibe coding" src="https://img.shields.io/badge/vibe%20coding-Gemini%20%2B%20Claude-14102B?style=for-the-badge&logoColor=white">
 
-**[▶ Abrir o app](https://luizgarcg.github.io/wrapped/)**
+**[▶ Abrir na Vercel](https://wrapped-chi-nine.vercel.app/)**  ·  **[▶ Abrir no GitHub Pages](https://luizgarcg.github.io/wrapped/)**
 
 ```
       ▂ ▅ █ ▆ ▃        ▃ ▆ █ ▅ ▂
@@ -78,6 +79,21 @@ Perguntas geradas **com os seus próprios dados**: qual foi a sua música mais o
 ### 📱 A história da pasta `api`
 
 No iPhone, o navegador bloqueava o acesso direto do site à API do iTunes, enquanto no PC e no Android tudo funcionava. A solução foi criar uma pequena função na Vercel (`api/buscar.js`): o site pergunta para ela, ela pergunta para o iTunes e devolve a resposta. Resultado: o app funciona em qualquer aparelho.
+
+---
+
+## 🤖 Como foi feito: vibe coding
+
+Este projeto nasceu de **vibe coding**: em vez de escrever cada linha na mão, eu descrevi em português o que queria (uma tela de busca, um wrapped com ranking, um quiz, versão em inglês, cores mais "pop") e fui conversando com IAs para transformar as ideias em código. As ferramentas foram o **Gemini** e o **Claude**.
+
+O processo foi mais ou menos assim:
+
+1. 💡 Eu tinha a ideia e explicava o que queria ver na tela
+2. 🤖 A IA gerava ou ajustava o código
+3. 🧪 Eu testava de verdade, no PC e no celular
+4. 🐛 Quando algo quebrava (como a busca que não funcionava no iPhone), eu levava o erro de volta e a gente corrigia junto
+
+Foi assim que o app ganhou ajustes de visual, tradução para inglês, backup das escutas e a função da Vercel que faz a busca funcionar no iPhone. A IA ajuda a escrever, mas as decisões, os testes e a caça aos bugs continuam sendo de quem usa. 😉
 
 ---
 
