@@ -199,6 +199,7 @@ body:has(#quiz:target) #registrar {
 
 /* ----- Seletor de idioma (PT | EN), centralizado acima do título ----- */
 .idioma {
+  border-radius: 6px;
   display: flex;
   width: fit-content;
   margin: 0 auto 1.25rem;
@@ -279,11 +280,11 @@ body:has(#quiz:target) #registrar {
   font-weight: 700;
   border: 2px solid #F7F4FF;
   /* cantos levemente arredondados; sobrepõe o reset de cantos quadrados lá do topo */
-  border-radius: 5px;
+  border-radius: 6px;
   padding: 0.65rem 1.1rem;
   cursor: pointer;
   transition: background-color 0.4s ease, border-color 0.2s ease, color 0.3s ease,
-    transform 0.5s ease, filter 0.2s ease;
+    transform 0.5s ease, filter 0.4s ease;
 }
 
 .botao:hover {
@@ -309,16 +310,17 @@ body:has(#quiz:target) #registrar {
 
 /* ----- Rosa (ação principal: Buscar, Importar) ----- */
 .botao--escuro {
-  background: #db3887;
+  background: #993f6b;
   color: #fcfcfc;
   border-color: #FF4FA3;
 }
 
 /* ----- Amarelo (Ouvi completa, Exportar, Começar quiz) ----- */
 .botao--amarelo {
-  background: #FFD84D;
+  background: #f8d659;
   color: #14102B;
   border-color: #FFD84D;
+  border-radius: 6px;
 }
 
 /* ----- Perigo (Apagar todas, Remover selecionadas): só contorno rosa ----- */
@@ -326,6 +328,7 @@ body:has(#quiz:target) #registrar {
   background: transparent;
   color: #F7F4FF;
   border-color: #862525;
+  border-radius: 6px;
 }
 
 .botao--perigo:hover {
@@ -337,6 +340,7 @@ body:has(#quiz:target) #registrar {
   background: #FF4FA3;
   color: #14102B;
   border-color: #FF4FA3;
+  border-radius: 5px;
 }
 
 /* ----- Neutro (Cancelar, Limpar seleção): transparente ----- */
@@ -956,7 +960,7 @@ input:focus-visible + .marca {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  background: linear-gradient(135deg, #FF4FA3, #A78BFA);
+  background: linear-gradient(135deg, #b35f87, #A78BFA);
   color: #14102B;
   border-top-color: #FFD84D;
 }
@@ -973,13 +977,15 @@ input:focus-visible + .marca {
   background: linear-gradient(135deg, #FFD84D, #FF9F43);
   color: #14102B;
   border-top-color: #FF4FA3;
+    border-radius: 6px;
 }
 
 /* ----- Personalidade: degradê turquesa → menta, texto escuro ----- */
 .bloco--personalidade {
-  background: linear-gradient(135deg, #22D3EE, #4ADE9A);
+  background: linear-gradient(135deg, #60cedf, #98dfbe);
   color: #14102B;
   border-top-color: #A78BFA;
+  border-radius: 6px;
 }
 
 /* ----- Textos do bloco de idade ----- */

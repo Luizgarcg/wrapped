@@ -229,7 +229,6 @@ formBusca.addEventListener("submit", async (evento) => {
     }
   } catch (erro) {
     console.error(erro);
-    mostrarToast(String(erro), 12000); // TEMPORÁRIO: mostra o erro real no celular
     listaResultados.replaceChildren();
     atualizarSelecao();
     definir(msgBusca, "busca.erro");
